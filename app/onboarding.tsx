@@ -2,16 +2,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import {
-  Keyboard,
   StyleSheet,
   Text,
   TextInput,
-  TouchableWithoutFeedback,
-  View,
+  View
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import Banner from "../component/banner";
-import Button from "../component/button";
+import Banner from "../component/Banner";
+import PrimaryButton from "../component/PrimaryButton";
 
 const Onboarding = () => {
   const [firstName, setFirstName] = useState("");
@@ -29,17 +27,18 @@ const Onboarding = () => {
 
   const saveUserDetails = async () => {
     try {
-      await AsyncStorage.multiSet([
-        ["firstName", firstName],
-        ["email", email],
-      ]);
+      const userProfile = {
+        firstName,
+        email
+      }
+      await AsyncStorage.setItem("userProfile", JSON.stringify(userProfile))
     } catch (err) {
       console.error("Failed to save user details in async storage", err);
     }
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+   
       <KeyboardAwareScrollView
         style={styles.background}
         contentContainerStyle={styles.scrollContent}
@@ -77,18 +76,18 @@ const Onboarding = () => {
           </View>
 
           <View style={styles.button}>
-            <Button
-              name="Next"
-              onClick={() => {
-                saveUserDetails();
-                router.push("/profile");
+            <PrimaryButton
+              label="Next"
+              onClick={async() => {
+                await saveUserDetails();
+                router.replace("./profile");
               }}
               isDisabled={isButtonDisabled}
             />
           </View>
         </View>
       </KeyboardAwareScrollView>
-    </TouchableWithoutFeedback>
+
   );
 };
 
@@ -106,8 +105,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 20,
-    fontFamily: "Karla-Regular",
-    fontWeight: "semibold",
+    fontFamily: "Karla-Medium",
     alignSelf: "center",
   },
   textInputContainer: {
@@ -120,6 +118,7 @@ const styles = StyleSheet.create({
   textInput: {
     borderWidth: 1,
     borderRadius: 5,
+    fontFamily: 'Karla-Regular'
   },
   button: {
     alignItems: "flex-end",
