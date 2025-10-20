@@ -1,12 +1,18 @@
-import { } from "react";
+import type { FC } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-const Button = ({ name, onClick, isDisabled}) => {
+type Props = {
+  label: string;
+  onClick: () => void;
+  isDisabled?: boolean;
+}
+
+const PrimaryButton: FC<Props> = ({ label, onClick, isDisabled = false}) => {
   return (
     <>
-      <View style={[styles.button , {backgroundColor: isDisabled ? '#8b8b8bff' : '#F4CE14'}, {borderColor: isDisabled ? '#8b8b8bff' : '#F4CE14'}]}>
+      <View style={[styles.button , {backgroundColor: isDisabled ? '#8b8b8bff' : '#F4CE14'}, {borderColor: isDisabled ? '#8b8b8bff' : '#EE9972'}]}>
         <Pressable onPress={onClick} disabled={isDisabled}>
-          <Text style={styles.buttonText}>{name}</Text>
+          <Text style={styles.buttonText}>{label}</Text>
         </Pressable>
       </View>
     </>
@@ -19,7 +25,7 @@ const styles = StyleSheet.create({
   },
   button: {
     borderWidth: 1,
-    borderRadius: 16,
+    borderRadius: 8,
     alignItems: "center",
     padding: 10,
     paddingHorizontal: 30,
@@ -31,4 +37,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default Button;
+export default PrimaryButton;
