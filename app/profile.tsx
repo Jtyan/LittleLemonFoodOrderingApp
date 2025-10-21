@@ -1,3 +1,4 @@
+import { getInitials } from "@/utils/getInitials";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import { router, Stack } from "expo-router";
@@ -66,26 +67,10 @@ const Profile = () => {
       aspect: [4, 3],
       quality: 1,
     });
-    console.log(result);
 
     if (!result.canceled) {
       setProfilePhoto(result.assets[0].uri);
     }
-  };
-
-  const getInitials = () => {
-    let firstLetter;
-    let secondLetter;
-    if (!firstName && !lastName) {
-      return "";
-    } else if (!lastName) {
-      firstLetter = firstName[0];
-      secondLetter = firstName.length > 1 ? firstName[1] : firstName[0];
-    } else if (!firstName) {
-      firstLetter = lastName[0];
-      secondLetter = lastName.length > 1 ? lastName[1] : lastName[0];
-    }
-    return `${firstLetter}${secondLetter}`.toUpperCase();
   };
 
   const toggleNotifications = (key: string) => {
@@ -151,7 +136,7 @@ const Profile = () => {
             ) : (
               <View style={styles.headerAvatarPlaceholder}>
                 <Text style={styles.headerAvatarPlaceholderText}>
-                  {getInitials()}
+                  {getInitials(firstName, lastName)}
                 </Text>
               </View>
             ),
@@ -183,7 +168,7 @@ const Profile = () => {
               ) : (
                 <View style={styles.avatarPlaceholder}>
                   <Text style={styles.avatarPlaceholderText}>
-                    {getInitials()}
+                    {getInitials(firstName, lastName)}
                   </Text>
                 </View>
               )}
