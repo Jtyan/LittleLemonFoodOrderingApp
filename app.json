@@ -4,7 +4,7 @@
     "slug": "little-lemon-food-order-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/Logo.png",
     "scheme": "littlelemonfoodorderapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
