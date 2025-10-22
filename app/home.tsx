@@ -1,4 +1,5 @@
 import Banner from "@/component/Banner";
+import CategoryList from "@/component/categoryList";
 import MenuItem from "@/component/MenuItem";
 import useGetUserProfile from "@/hooks/useGetUserProfile";
 import { MenuItemType, useMenuData } from "@/hooks/useMenuData";
@@ -19,7 +20,6 @@ import { Searchbar } from "react-native-paper";
 export default function Home() {
   const { isLoading: profileIsLoading, isError: profileIsError, profile, refetch } = useGetUserProfile();
   const { menu, isLoading: menuIsLoading, isError: menuIsError} = useMenuData()
-
   const { firstName, lastName, profilePhoto } = profile || {};
 
   useFocusEffect(
@@ -85,6 +85,9 @@ export default function Home() {
         <View style={styles.bottomContainer}>
           <View>
             <Text style={styles.subHeading}>ORDER FOR DELIVERY!</Text>
+          </View>
+          <View>
+            <CategoryList/>
           </View>
           <View style={styles.flatListContainer}>
             <FlatList
