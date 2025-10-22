@@ -1,31 +1,45 @@
+import { Dispatch, SetStateAction } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
-const categories = ["Starters", "Mains", "Desserts", "Drinks", "Specials"];
-
-const renderItem = ({ item }: { item: string }) => {
-  return (
-    <Pressable>
-      <View
-        style={{
-          alignItems: "center",
-          borderRadius: 15,
-          backgroundColor: "#495e5725",
-          marginVertical: 10,
-          marginEnd: 10,
-          padding: 8,
-        }}
-      >
-        <Text style={styles.label}>{item}</Text>
-      </View>
-    </Pressable>
-  );
+type CategoryListProps = {
+  category: string[];
+  selection: boolean[];
+  setFilterSelection: Dispatch<SetStateAction<boolean[]>>;
 };
 
-const CategoryList = () => {
+const CategoryList = ({
+  category,
+  selection,
+  setFilterSelection,
+}: CategoryListProps) => {
+    
+  const handlePress = (index: number) => {
+    const newSelection = selection.map((item, i) =>
+      i === index ? !item : item
+    );
+    setFilterSelection(newSelection);
+  };
+
+  const renderItem = ({ item, index }: { item: string; index: number }) => {
+    const isSelected = selection[index];
+    return (
+      <Pressable onPress={() => handlePress(index)}>
+        <View
+          style={[
+            styles.itemContainer,
+            isSelected ? styles.itemSelected : styles.itemIdle,
+          ]}
+        >
+          <Text style={[styles.label, isSelected ? styles.labelSelected : styles.labelIdle]}>{item}</Text>
+        </View>
+      </Pressable>
+    );
+  };
+
   return (
     <FlatList
       style={styles.container}
-      data={categories}
+      data={category}
       horizontal
       keyExtractor={(item) => item}
       renderItem={renderItem}
@@ -39,15 +53,25 @@ const styles = StyleSheet.create({
   itemContainer: {
     alignItems: "center",
     borderRadius: 15,
-    backgroundColor: "#495e5725",
     marginVertical: 10,
     marginEnd: 10,
     padding: 8,
   },
+  itemIdle: {
+    backgroundColor: "#495e5725",
+  },
+  itemSelected: {
+    backgroundColor: "#495e57",
+  },
   label: {
     fontFamily: "Karla-ExtraBold",
     fontSize: 16,
-    color: "#495e57",
+  },
+  labelSelected: {
+    color: "#EDEFEE"
+  },
+    labelIdle: {
+    color: "#495e57"
   },
 });
 
