@@ -48,3 +48,25 @@ export const saveMenuinDb = async(menu: MenuItemType[]) => {
         }
     })
 }
+
+export const filterByQueryAndCategories = async(query: string, activeCategory: string[]) => {
+    const db = await getDb()
+    let sql = `SELECT * FROM menu WHERE 1=1`
+    const params: (string | number)[] = []
+
+    if (query) {
+        sql += ` AND name LIKE ?`
+        params.push(`%${query.toLowerCase()}%`)
+    }
+
+    if (activeCategory.length > 0 && activeCategory.length < 5) {
+        const placeholders = activeCategory.map(() => '?').join(',')
+        const lowerCaseCategories = activeCategory.map((i) => i.toLowerCase())
+        sql += ` AND category IN (${placeholders})`
+        params.push(...lowerCaseCategories)
+    }
+    console.log(`SQL : ${sql}, PARAMS: ${params}`)
+
+    const result = await db.getAllAsync<MenuItemType>(sql, params)
+    return result
+}
