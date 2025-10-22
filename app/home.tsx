@@ -17,8 +17,8 @@ import {
 import { Searchbar } from "react-native-paper";
 
 export default function Home() {
-  const { isLoading, isError, profile, refetch } = useGetUserProfile();
-  const { menu } = useMenuData();
+  const { isLoading: profileIsLoading, isError: profileIsError, profile, refetch } = useGetUserProfile();
+  const { menu, isLoading: menuIsLoading, isError: menuIsError} = useMenuData()
 
   const { firstName, lastName, profilePhoto } = profile || {};
 
@@ -28,7 +28,7 @@ export default function Home() {
     }, [refetch])
   );
 
-  if (isLoading) {
+  if (profileIsLoading || menuIsLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" />
@@ -36,11 +36,11 @@ export default function Home() {
     );
   }
 
-  if (isError) {
+  if (profileIsError || menuIsError) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Text>Oops, something went wrong!</Text>
-        <Text>Could not load your profile.</Text>
+        <Text>Could not load your data.</Text>
       </View>
     );
   }
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   },
   bottomContainer: {
     flex: 1,
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
   },
   flatListContainer: {
     flex: 1,
