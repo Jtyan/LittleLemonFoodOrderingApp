@@ -1,11 +1,14 @@
 import Banner from "@/component/Banner";
 import CategoryList from "@/component/categoryList";
 import MenuItem from "@/component/MenuItem";
+import { filterByQueryAndCategories } from "@/database/database";
 import useGetUserProfile from "@/hooks/useGetUserProfile";
 import { MenuItemType, useMenuData } from "@/hooks/useMenuData";
+import { useUpdateEffect } from "@/hooks/useUpdateEffect";
 import { getInitials } from "@/utils/getInitials";
 import { router, Stack, useFocusEffect } from "expo-router";
-import { useCallback } from "react";
+import debounce from "lodash.debounce";
+import { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -17,9 +20,26 @@ import {
 } from "react-native";
 import { Searchbar } from "react-native-paper";
 
+const categories = ["Starters", "Mains", "Desserts", "Drinks", "Specials"];
+
 export default function Home() {
-  const { isLoading: profileIsLoading, isError: profileIsError, profile, refetch } = useGetUserProfile();
-  const { menu, isLoading: menuIsLoading, isError: menuIsError} = useMenuData()
+  const [searchbarText, setSearchbarText] = useState("");
+  const [query, setQuery] = useState("");
+  const [filterSelection, setFilterSelection] = useState(
+    categories.map(() => false)
+  );
+  const {
+    isLoading: profileIsLoading,
+    isError: profileIsError,
+    profile,
+    refetch,
+  } = useGetUserProfile();
+  const {
+    menu,
+    setMenu,
+    isLoading: menuIsLoading,
+    isError: menuIsError,
+  } = useMenuData();
   const { firstName, lastName, profilePhoto } = profile || {};
 
   useFocusEffect(
@@ -27,6 +47,44 @@ export default function Home() {
       refetch();
     }, [refetch])
   );
+
+  useUpdateEffect(() => {
+    const searchAndFilterMenu = async () => {
+      const activeCategories = categories.filter((s, i) => {
+        if (filterSelection.every((item) => item === false)) {
+          return true;
+        }
+        return filterSelection[i];
+      });
+      try {
+        const menuList = await filterByQueryAndCategories(
+          query,
+          activeCategories
+        );
+        console.log(
+          `query: ${query}, activeCat: ${activeCategories}, menulist: ${menuList}`
+        );
+        setMenu(menuList);
+      } catch (err) {
+        console.error(
+          "SearchAndFilterMenu: Failed to get filtered menu list",
+          err
+        );
+      }
+    };
+    searchAndFilterMenu();
+  }, [filterSelection, query]);
+
+  const lookup = useCallback((query: string) => {
+    setQuery(query);
+  }, []);
+
+  const debouncedLookup = useMemo(() => debounce(lookup, 500), [lookup]);
+
+  const handleSearchChange = (text: string) => {
+    setSearchbarText(text);
+    debouncedLookup(text);
+  };
 
   if (profileIsLoading || menuIsLoading) {
     return (
@@ -80,14 +138,25 @@ export default function Home() {
       <View style={styles.container}>
         <Banner />
         <View style={styles.searchbarBackground}>
-          <Searchbar style={styles.searchbar} value="" placeholder="Search" />
+          <Searchbar
+            style={styles.searchbar}
+            value={searchbarText}
+            placeholder="Search"
+            placeholderTextColor="#495E57"
+            inputStyle={{ alignSelf: "center" }}
+            onChangeText={handleSearchChange}
+          />
         </View>
         <View style={styles.bottomContainer}>
           <View>
             <Text style={styles.subHeading}>ORDER FOR DELIVERY!</Text>
           </View>
           <View>
-            <CategoryList/>
+            <CategoryList
+              category={categories}
+              selection={filterSelection}
+              setFilterSelection={setFilterSelection}
+            />
           </View>
           <View style={styles.flatListContainer}>
             <FlatList
@@ -128,6 +197,8 @@ const styles = StyleSheet.create({
   },
   searchbar: {
     height: 40,
+    fontFamily: "Karla-Regular",
+    color: "#495E57",
   },
   subHeading: {
     fontFamily: "Karla-ExtraBold",

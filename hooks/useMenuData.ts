@@ -68,5 +68,5 @@ export const useMenuData = () => {
 
     loadData();
   }, []);
-  return { menu, isLoading, isError };
+  return { menu, setMenu, isLoading, isError };
 };
