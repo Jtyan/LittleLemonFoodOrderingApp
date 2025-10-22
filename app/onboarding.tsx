@@ -80,7 +80,7 @@ const Onboarding = () => {
               label="Next"
               onClick={async() => {
                 await saveUserDetails();
-                router.replace("./profile");
+                router.replace("/home");
               }}
               isDisabled={isButtonDisabled}
             />
