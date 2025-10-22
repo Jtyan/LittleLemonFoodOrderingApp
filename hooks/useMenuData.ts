@@ -1,4 +1,4 @@
-import * as SQLite from "expo-sqlite";
+
 import { useEffect, useState } from "react";
 
 const API_URL =
@@ -7,8 +7,6 @@ const API_URL =
 const IMAGE_BASE_URL =
   "https://github.com/Meta-Mobile-Developer-PC/Working-With-Data-API/blob/main/images/";
 
-
-  const db = await SQLite.openDatabaseAsync('little_lemon.db')
 type RawMenuItem = {
   name: string;
   price: string;
@@ -31,13 +29,10 @@ export const useMenuData = () => {
   const [isError, setIsError] = useState(false);
   const [menu, setMenu] = useState<MenuItemType[]>([]);
 
-  const hasDecimalCheck = (price: string) => {
-    if (Number(price) % 1 != 0) {
-        return `$${price}`
-    } else {
-        return `$${price}.00`
-    }
-  }
+  const formatPrice = (price: string) => {
+    const priceNum = parseFloat(price)
+    return `$${priceNum.toFixed(2)}`
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,12 +43,12 @@ export const useMenuData = () => {
         const transformedData = json.menu.map((item: RawMenuItem) => ({
           id: item.name + item.category,
           name: item.name,
-          price: hasDecimalCheck(item.price),
+          price: formatPrice(item.price),
           description: item.description,
           category: item.category,
-          image: `${IMAGE_BASE_URL}${item.image}?raw=true`
+          image: `${IMAGE_BASE_URL}${item.image}?raw=true`,
         }));
-        setMenu(transformedData)
+        setMenu(transformedData);
       } catch (e) {
         console.error("Failed to fetch menu: ", e);
         setIsError(true);
