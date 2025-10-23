@@ -4,7 +4,7 @@ import { Image, Pressable, StyleSheet } from "react-native";
 
 const HeaderLogo = () => {
   return (
-    <Pressable onPress={() => router.navigate('/profile')}>
+    <Pressable onPress={() => router.dismissTo('/home')}>
       <Image
         style={styles.image}
         source={require("../assets/images/Logo.png")}
