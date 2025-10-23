@@ -117,7 +117,7 @@ const Profile = () => {
   const onLogoutClick = async () => {
     try {
       await AsyncStorage.removeItem("userProfile");
-      router.replace("./onboarding");
+      router.dismissTo("./onboarding");
     } catch (err) {
       console.error("Failed to clear async storage", err);
     }
