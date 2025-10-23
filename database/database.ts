@@ -2,7 +2,7 @@ import { MenuItemType } from "@/hooks/useMenuData";
 import * as SQLite from "expo-sqlite";
 
 
-const DB_NAME = "little_lemon";
+const DB_NAME = "little_lemon_JT_version";
 let _db: SQLite.SQLiteDatabase | null = null;
 
 const getDb = async () => {
