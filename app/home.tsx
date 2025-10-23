@@ -204,6 +204,7 @@ const styles = StyleSheet.create({
   subHeading: {
     fontFamily: "Karla-ExtraBold",
     fontSize: 20,
+    marginVertical: 10,
   },
   bottomContainer: {
     flex: 1,

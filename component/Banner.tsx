@@ -26,6 +26,7 @@ const styles = StyleSheet.create({
   },
   container: {
     margin: 20,
+    justifyContent: 'space-evenly'
   },
   title: {
     fontSize: 72,
@@ -45,7 +46,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: -30
+    marginTop: -20
   },
   paragraph: {
     paddingTop: 10,
