@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "little-lemon-food-order-app",
-    "slug": "little-lemon-food-order-app",
+    "name": "Little Lemon Restaurant",
+    "slug": "little lemon Restaurant",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/Logo.png",
