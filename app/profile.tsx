@@ -1,9 +1,11 @@
 import { getInitials } from "@/utils/getInitials";
+import { validateEmail, validateName } from "@/utils/isInputValid";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import { router, Stack } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  Alert,
   Image,
   ImageBackground,
   StyleSheet,
@@ -28,35 +30,28 @@ const Profile = () => {
   const [specialOffers, setSpecialOffers] = useState(false);
   const [newsletter, setNewsletter] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const userProfile = await AsyncStorage.getItem("userProfile");
-        if (userProfile) {
-          const profileData = JSON.parse(userProfile);
-          setFirstName(profileData.firstName || "");
-          setLastName(profileData.lastName || "");
-          setEmail(profileData.email || "");
-          setPhoneNumber(profileData.phoneNumber || "");
-          setProfilePhoto(profileData.profilePhoto || "");
-
-          if (profileData.emailNotifications) {
-            setOrderStatuses(
-              profileData.emailNotifications.orderStatuses || false
-            );
-            setPasswordChanges(
-              profileData.emailNotifications.passwordChanges || false
-            );
-            setSpecialOffers(
-              profileData.emailNotifications.specialOffers || false
-            );
-            setNewsletter(profileData.emailNotifications.newsletter || false);
-          }
-        }
-      } catch (err) {
-        console.error("Unable to get user details from async storage", err);
+  const fetchData = async () => {
+    try {
+      const userProfile = await AsyncStorage.getItem("userProfile");
+      if (userProfile) {
+        const profileData = JSON.parse(userProfile);
+        setFirstName(profileData.firstName || "");
+        setLastName(profileData.lastName || "");
+        setEmail(profileData.email || "");
+        setPhoneNumber(profileData.phoneNumber || "");
+        setProfilePhoto(profileData.profilePhoto || "");
+        
+        const notifications = profileData.emailNotifications || {};
+        setOrderStatuses(notifications.orderStatuses || false);
+        setPasswordChanges(notifications.passwordChanges || false);
+        setSpecialOffers(notifications.specialOffers || false);
+        setNewsletter(notifications.newsletter || false);
       }
-    };
+    } catch (err) {
+      console.error("Unable to get user details from async storage", err);
+    }
+  };
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -107,11 +102,21 @@ const Profile = () => {
           newsletter,
         },
       };
+      if (validateName(firstName) && validateEmail(email)) {
       await AsyncStorage.setItem("userProfile", JSON.stringify(userProfile));
-      alert("Profile saved successfully!");
+      Alert.alert("Success", "Profile saved successfully!");
+      } else {
+        Alert.alert("Error", "First name and Email must be valid.")
+      }
+
     } catch (err) {
       console.error("Failed to save user details", err);
     }
+  };
+
+  const handleDiscardChange = async () => {
+    await fetchData();
+    Alert.alert("Success", "Changes has been discarded.");
   };
 
   const onLogoutClick = async () => {
@@ -237,7 +242,7 @@ const Profile = () => {
             <View style={styles.changeContainer}>
               <SecondaryButton
                 name="Discard changes"
-                onClick={() => {}}
+                onClick={handleDiscardChange}
                 backgroundColor="#EDEFEE"
                 fontColor="#495E57"
                 borderColor="#495E57"
