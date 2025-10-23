@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router } from "expo-router";
+import { router, Stack } from "expo-router";
 import { useMemo, useState } from "react";
 import {
   StyleSheet,
@@ -38,8 +38,11 @@ const Onboarding = () => {
   };
 
   return (
-   
-      <KeyboardAwareScrollView
+    <>
+    <Stack.Screen options={{
+      headerBackVisible: false
+    }}/>
+     <KeyboardAwareScrollView
         style={styles.background}
         contentContainerStyle={styles.scrollContent}
         enableOnAndroid={true}
@@ -87,7 +90,7 @@ const Onboarding = () => {
           </View>
         </View>
       </KeyboardAwareScrollView>
-
+    </>
   );
 };
 

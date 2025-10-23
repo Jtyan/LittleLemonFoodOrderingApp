@@ -133,6 +133,7 @@ export default function Home() {
                 </View>
               </Pressable>
             ),
+          headerBackVisible: false,
         }}
       />
       <View style={styles.container}>
