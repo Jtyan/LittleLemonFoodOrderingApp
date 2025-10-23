@@ -159,7 +159,7 @@ export default function Home() {
               setFilterSelection={setFilterSelection}
             />
           </View>
-          <View style={styles.flatListContainer}>
+          {menu.length > 0 ? (<View style={styles.flatListContainer}>
             <FlatList
               data={menu}
               renderItem={renderItem}
@@ -167,7 +167,7 @@ export default function Home() {
               ItemSeparatorComponent={() => <View style={styles.separator} />}
               showsVerticalScrollIndicator={false}
             />
-          </View>
+          </View>) : <Text style={styles.emptyMenuText}>No menu item available</Text>}
         </View>
       </View>
     </>
@@ -217,4 +217,10 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: "#495e572d",
   },
+  emptyMenuText: {
+    alignSelf: 'center',
+    padding: 20,
+    fontFamily: 'Karla-Regular',
+    color: "#495E57"
+  }
 });
