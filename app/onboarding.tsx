@@ -1,12 +1,8 @@
+import { validateEmail, validateName } from "@/utils/isInputValid";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, Stack } from "expo-router";
 import { useMemo, useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  View
-} from "react-native";
+import { StyleSheet, Text, TextInput, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Banner from "../component/Banner";
 import PrimaryButton from "../component/PrimaryButton";
@@ -16,11 +12,11 @@ const Onboarding = () => {
   const [email, setEmail] = useState("");
 
   const isFirstNameValid = useMemo(() => {
-    return /^[a-zA-Z]+$/.test(firstName);
+    return validateName(firstName);
   }, [firstName]);
 
   const isEmailValid = useMemo(() => {
-    return /^\S+@\S+\.\S+$/.test(email);
+    return validateEmail(email);
   }, [email]);
 
   const isButtonDisabled = !isFirstNameValid || !isEmailValid;
@@ -29,9 +25,9 @@ const Onboarding = () => {
     try {
       const userProfile = {
         firstName,
-        email
-      }
-      await AsyncStorage.setItem("userProfile", JSON.stringify(userProfile))
+        email,
+      };
+      await AsyncStorage.setItem("userProfile", JSON.stringify(userProfile));
     } catch (err) {
       console.error("Failed to save user details in async storage", err);
     }
@@ -39,10 +35,12 @@ const Onboarding = () => {
 
   return (
     <>
-    <Stack.Screen options={{
-      headerBackVisible: false
-    }}/>
-     <KeyboardAwareScrollView
+      <Stack.Screen
+        options={{
+          headerBackVisible: false,
+        }}
+      />
+      <KeyboardAwareScrollView
         style={styles.background}
         contentContainerStyle={styles.scrollContent}
         enableOnAndroid={true}
@@ -81,7 +79,7 @@ const Onboarding = () => {
           <View style={styles.button}>
             <PrimaryButton
               label="Next"
-              onClick={async() => {
+              onClick={async () => {
                 await saveUserDetails();
                 router.replace("/home");
               }}
@@ -121,7 +119,7 @@ const styles = StyleSheet.create({
   textInput: {
     borderWidth: 1,
     borderRadius: 5,
-    fontFamily: 'Karla-Regular'
+    fontFamily: "Karla-Regular",
   },
   button: {
     alignItems: "flex-end",
