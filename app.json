@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Little Lemon Restaurant",
-    "slug": "little lemon Restaurant",
+    "slug": "little-lemon-restaurant",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/Logo.png",
@@ -43,6 +43,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "2deee1e8-bf3a-4aa6-b3ff-9f2b7f9ff6e5"
+      }
     }
   }
 }
