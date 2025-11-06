@@ -1,18 +1,7 @@
+import { UserProfile } from "@/types/userProfile";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback, useEffect, useState } from "react";
 
-type UserProfile = {
-  firstName: string;
-  lastName: string;
-  profilePhoto: string | null;
-  email: string;
-  emailNotifications: {
-    orderStatuses: boolean,
-    passwordChanges: boolean,
-    specialOffers: boolean,
-    newsletter: boolean
-  }
-};
 
 const useGetUserProfile = () => {
   const [isLoading, setIsLoading] = useState(true);
