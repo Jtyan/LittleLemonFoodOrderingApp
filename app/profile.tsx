@@ -1,9 +1,11 @@
+import Loading from "@/component/Loading";
+import useGetUserProfile from "@/hooks/useGetUserProfile";
 import { getInitials } from "@/utils/getInitials";
 import { validateEmail, validateName } from "@/utils/isInputValid";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import { router, Stack } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Alert,
   Image,
@@ -20,40 +22,32 @@ import PrimaryButton from "../component/PrimaryButton";
 import SecondaryButton from "../component/SecondaryButton";
 
 const Profile = () => {
-  const [profilePhoto, setProfilePhoto] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [orderStatuses, setOrderStatuses] = useState(false);
-  const [passwordChanges, setPasswordChanges] = useState(false);
-  const [specialOffers, setSpecialOffers] = useState(false);
-  const [newsletter, setNewsletter] = useState(false);
+  const { profile, isLoading, isError } = useGetUserProfile();
+  const [profilePhoto, setProfilePhoto] = useState(profile?.profilePhoto || "");
+  const [firstName, setFirstName] = useState(profile?.firstName || "");
+  const [lastName, setLastName] = useState(profile?.lastName || "");
+  const [email, setEmail] = useState(profile?.email || "");
+  const [phoneNumber, setPhoneNumber] = useState(profile?.phoneNumber || "");
+  const [orderStatuses, setOrderStatuses] = useState(
+    profile?.emailNotifications?.orderStatuses || false
+  );
+  const [passwordChanges, setPasswordChanges] = useState(
+    profile?.emailNotifications?.passwordChanges || false
+  );
+  const [specialOffers, setSpecialOffers] = useState(
+    profile?.emailNotifications?.specialOffers || false
+  );
+  const [newsletter, setNewsletter] = useState(
+    profile?.emailNotifications?.newsletter || false
+  );
 
-  const fetchData = async () => {
-    try {
-      const userProfile = await AsyncStorage.getItem("userProfile");
-      if (userProfile) {
-        const profileData = JSON.parse(userProfile);
-        setFirstName(profileData.firstName || "");
-        setLastName(profileData.lastName || "");
-        setEmail(profileData.email || "");
-        setPhoneNumber(profileData.phoneNumber || "");
-        setProfilePhoto(profileData.profilePhoto || "");
-        
-        const notifications = profileData.emailNotifications || {};
-        setOrderStatuses(notifications.orderStatuses || false);
-        setPasswordChanges(notifications.passwordChanges || false);
-        setSpecialOffers(notifications.specialOffers || false);
-        setNewsletter(notifications.newsletter || false);
-      }
-    } catch (err) {
-      console.error("Unable to get user details from async storage", err);
-    }
-  };
-  useEffect(() => {
-    fetchData();
-  }, []);
+  if (isLoading) {
+    return <Loading />;
+  }
+  if (!profile) {
+    router.replace("/onboarding");
+    return <Loading />;
+  }
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -103,26 +97,33 @@ const Profile = () => {
         },
       };
       if (validateName(firstName) && validateEmail(email)) {
-      await AsyncStorage.setItem("userProfile", JSON.stringify(userProfile));
-      Alert.alert("Success", "Profile saved successfully!");
+        await AsyncStorage.setItem("userProfile", JSON.stringify(userProfile));
+        Alert.alert("Success", "Profile saved successfully!");
       } else {
-        Alert.alert("Error", "First name and Email must be valid.")
+        Alert.alert("Error", "First name and Email must be valid.");
       }
-
     } catch (err) {
       console.error("Failed to save user details", err);
     }
   };
 
   const handleDiscardChange = async () => {
-    await fetchData();
+    setProfilePhoto(profile.profilePhoto || "");
+    setFirstName(profile.firstName || "");
+    setLastName(profile.lastName || "");
+    setEmail(profile.email || "");
+    setPhoneNumber(profile.phoneNumber || "");
+    setOrderStatuses(profile.emailNotifications?.orderStatuses || false);
+    setPasswordChanges(profile.emailNotifications?.passwordChanges || false);
+    setSpecialOffers(profile.emailNotifications?.specialOffers || false);
+    setNewsletter(profile.emailNotifications?.newsletter || false);
     Alert.alert("Success", "Changes has been discarded.");
   };
 
   const onLogoutClick = async () => {
     try {
       await AsyncStorage.removeItem("userProfile");
-      router.dismissTo("./onboarding");
+      router.replace("./home");
     } catch (err) {
       console.error("Failed to clear async storage", err);
     }
