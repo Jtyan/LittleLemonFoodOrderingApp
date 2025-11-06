@@ -1,5 +1,6 @@
 import Banner from "@/component/Banner";
-import CategoryList from "@/component/categoryList";
+import CategoryList from "@/component/CategoryList";
+import Loading from "@/component/Loading";
 import MenuItem from "@/component/MenuItem";
 import { filterByQueryAndCategories } from "@/database/database";
 import useGetUserProfile from "@/hooks/useGetUserProfile";
@@ -10,13 +11,12 @@ import { router, Stack, useFocusEffect } from "expo-router";
 import debounce from "lodash.debounce";
 import { useCallback, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
   FlatList,
   Image,
   Pressable,
   StyleSheet,
   Text,
-  View,
+  View
 } from "react-native";
 import { Searchbar } from "react-native-paper";
 
@@ -29,8 +29,6 @@ export default function Home() {
     categories.map(() => false)
   );
   const {
-    isLoading: profileIsLoading,
-    isError: profileIsError,
     profile,
     refetch,
   } = useGetUserProfile();
@@ -86,15 +84,11 @@ export default function Home() {
     debouncedLookup(text);
   };
 
-  if (profileIsLoading || menuIsLoading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
+  if (menuIsLoading) {
+    return <Loading />;
   }
 
-  if (profileIsError || menuIsError) {
+  if (menuIsError) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Text>Oops, something went wrong!</Text>
@@ -102,6 +96,39 @@ export default function Home() {
       </View>
     );
   }
+
+  const profileHeader = () => {
+    if (profile && profilePhoto) {
+      return (
+        <Pressable onPress={() => router.navigate("/profile")}>
+          <Image
+            source={{ uri: profilePhoto }}
+            style={{ width: 40, height: 40, borderRadius: 20 }}
+          />
+        </Pressable>
+      );
+    } else if (profile) {
+      return (
+        <Pressable onPress={() => router.navigate("/profile")}>
+          <View style={styles.headerAvatarPlaceholder}>
+            <Text style={styles.headerAvatarPlaceholderText}>
+              {getInitials(firstName, lastName)}
+            </Text>
+          </View>
+        </Pressable>
+      );
+    } else {
+      return (
+        <Pressable onPress={() => router.navigate("/onboarding")}>
+          <Image
+            source={require("../assets/images/add-user.png")}
+            style={{ width: 30, height: 30, tintColor: "#495E57" }}
+            accessibilityLabel="Signup/Login"
+          />
+        </Pressable>
+      );
+    }
+  };
 
   const renderItem = ({ item }: { item: MenuItemType }) => (
     <MenuItem
@@ -116,23 +143,7 @@ export default function Home() {
     <>
       <Stack.Screen
         options={{
-          headerRight: () =>
-            profilePhoto ? (
-              <Pressable onPress={() => router.navigate("/profile")}>
-                <Image
-                  source={{ uri: profilePhoto }}
-                  style={{ width: 40, height: 40, borderRadius: 20 }}
-                />
-              </Pressable>
-            ) : (
-              <Pressable onPress={() => router.navigate("/profile")}>
-                <View style={styles.headerAvatarPlaceholder}>
-                  <Text style={styles.headerAvatarPlaceholderText}>
-                    {getInitials(firstName, lastName)}
-                  </Text>
-                </View>
-              </Pressable>
-            ),
+          headerRight: profileHeader,
           headerBackVisible: false,
         }}
       />
@@ -159,15 +170,19 @@ export default function Home() {
               setFilterSelection={setFilterSelection}
             />
           </View>
-          {menu.length > 0 ? (<View style={styles.flatListContainer}>
-            <FlatList
-              data={menu}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.id}
-              ItemSeparatorComponent={() => <View style={styles.separator} />}
-              showsVerticalScrollIndicator={false}
-            />
-          </View>) : <Text style={styles.emptyMenuText}>No menu item available</Text>}
+          {menu.length > 0 ? (
+            <View style={styles.flatListContainer}>
+              <FlatList
+                data={menu}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id}
+                ItemSeparatorComponent={() => <View style={styles.separator} />}
+                showsVerticalScrollIndicator={false}
+              />
+            </View>
+          ) : (
+            <Text style={styles.emptyMenuText}>No menu item available</Text>
+          )}
         </View>
       </View>
     </>
@@ -218,9 +233,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#495e572d",
   },
   emptyMenuText: {
-    alignSelf: 'center',
+    alignSelf: "center",
     padding: 20,
-    fontFamily: 'Karla-Regular',
-    color: "#495E57"
-  }
+    fontFamily: "Karla-Regular",
+    color: "#495E57",
+  },
 });
