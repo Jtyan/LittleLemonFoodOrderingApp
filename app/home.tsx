@@ -4,7 +4,7 @@ import Loading from "@/component/Loading";
 import MenuItem from "@/component/MenuItem";
 import { filterByQueryAndCategories } from "@/database/database";
 import useGetUserProfile from "@/hooks/useGetUserProfile";
-import { MenuItemType, useMenuData } from "@/hooks/useMenuData";
+import { useMenuData } from "@/hooks/useMenuData";
 import { useUpdateEffect } from "@/hooks/useUpdateEffect";
 import { getInitials } from "@/utils/getInitials";
 import { router, Stack, useFocusEffect } from "expo-router";
@@ -16,9 +16,10 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  View
+  View,
 } from "react-native";
 import { Searchbar } from "react-native-paper";
+import { MenuItemType } from "../types/menuItemType";
 
 const categories = ["Starters", "Mains", "Desserts", "Drinks", "Specials"];
 
@@ -28,10 +29,7 @@ export default function Home() {
   const [filterSelection, setFilterSelection] = useState(
     categories.map(() => false)
   );
-  const {
-    profile,
-    refetch,
-  } = useGetUserProfile();
+  const { profile, refetch } = useGetUserProfile();
   const {
     menu,
     setMenu,
@@ -175,7 +173,7 @@ export default function Home() {
               <FlatList
                 data={menu}
                 renderItem={renderItem}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => item.id.toString()}
                 ItemSeparatorComponent={() => <View style={styles.separator} />}
                 showsVerticalScrollIndicator={false}
               />

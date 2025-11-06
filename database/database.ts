@@ -1,6 +1,5 @@
-import { MenuItemType } from "@/hooks/useMenuData";
+import { MenuItemType } from "@/types/menuItemType";
 import * as SQLite from "expo-sqlite";
-
 
 const DB_NAME = "little_lemon_JT_version";
 let _db: SQLite.SQLiteDatabase | null = null;
@@ -26,47 +25,50 @@ export const initDatabase = async () => {
   );
 };
 
-export const getMenuFromDb = async() => {
-    const db = await getDb()
-    const result = await db.getAllAsync<MenuItemType>(`SELECT * FROM menu`)
-    return result
-}
+export const getMenuFromDb = async () => {
+  const db = await getDb();
+  const result = await db.getAllAsync<MenuItemType>(`SELECT * FROM menu`);
+  return result;
+};
 
-export const saveMenuinDb = async(menu: MenuItemType[]) => {
-    const db = await getDb()
-    await db.withTransactionAsync(async() => {
-        const insertSql = `INSERT INTO menu (id, name, price, description, image, category) VALUES(?, ?, ?, ?, ?, ?);`
-        for (const item of menu) {
-            await db.runAsync(insertSql, [
-                item.id,
-                item.name,
-                item.price,
-                item.description,
-                item.image,
-                item.category
-            ])
-        }
-    })
-}
-
-export const filterByQueryAndCategories = async(query: string, activeCategory: string[]) => {
-    const db = await getDb()
-    let sql = `SELECT * FROM menu WHERE 1=1`
-    const params: (string | number)[] = []
-
-    if (query) {
-        sql += ` AND name LIKE ?`
-        params.push(`%${query.toLowerCase()}%`)
+export const saveMenuinDb = async (menu: MenuItemType[]) => {
+  const db = await getDb();
+  await db.withTransactionAsync(async () => {
+    const insertSql = `INSERT INTO menu (id, name, price, description, image, category) VALUES(?, ?, ?, ?, ?, ?);`;
+    for (const item of menu) {
+      await db.runAsync(insertSql, [
+        item.id,
+        item.name,
+        item.price,
+        item.description,
+        item.image,
+        item.category,
+      ]);
     }
+  });
+};
 
-    if (activeCategory.length > 0 && activeCategory.length < 5) {
-        const placeholders = activeCategory.map(() => '?').join(',')
-        const lowerCaseCategories = activeCategory.map((i) => i.toLowerCase())
-        sql += ` AND category IN (${placeholders})`
-        params.push(...lowerCaseCategories)
-    }
-    console.log(`SQL : ${sql}, PARAMS: ${params}`)
+export const filterByQueryAndCategories = async (
+  query: string,
+  activeCategory: string[]
+) => {
+  const db = await getDb();
+  let sql = `SELECT * FROM menu WHERE 1=1`;
+  const params: (string | number)[] = [];
 
-    const result = await db.getAllAsync<MenuItemType>(sql, params)
-    return result
-}
+  if (query) {
+    sql += ` AND name LIKE ?`;
+    params.push(`%${query.toLowerCase()}%`);
+  }
+
+  if (activeCategory.length > 0 && activeCategory.length < 5) {
+    const placeholders = activeCategory.map(() => "?").join(",");
+    const lowerCaseCategories = activeCategory.map((i) => i.toLowerCase());
+    sql += ` AND category IN (${placeholders})`;
+    params.push(...lowerCaseCategories);
+  }
+  console.log(`SQL : ${sql}, PARAMS: ${params}`);
+
+  const result = await db.getAllAsync<MenuItemType>(sql, params);
+  return result;
+};
