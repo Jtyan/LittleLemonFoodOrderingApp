@@ -5,14 +5,20 @@ type Props = {
   label: string;
   onClick: () => void;
   isDisabled?: boolean;
-}
+};
 
-const PrimaryButton: FC<Props> = ({ label, onClick, isDisabled = false}) => {
+const PrimaryButton: FC<Props> = ({ label, onClick, isDisabled = false }) => {
   return (
     <>
-      <View style={[styles.button , {backgroundColor: isDisabled ? '#8b8b8bff' : '#F4CE14'}, {borderColor: isDisabled ? '#8b8b8bff' : '#EE9972'}]}>
+      <View
+        style={[
+          styles.button,
+          { backgroundColor: isDisabled ? "#8b8b8bff" : "#F4CE14" },
+          { borderColor: isDisabled ? "#8b8b8bff" : "#F4CE14" },
+        ]}
+      >
         <Pressable onPress={onClick} disabled={isDisabled}>
-          <Text style={styles.buttonText}>{label}</Text>
+          <Text style={[styles.buttonText, {color: isDisabled ? "#EDEFEE" : "#202020ff"}]}>{label}</Text>
         </Pressable>
       </View>
     </>
@@ -32,9 +38,10 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-    fontFamily: 'Karla-Regular',
-    fontWeight: '600'
-  }
+    fontFamily: "Karla-Regular",
+    fontWeight: "600",
+
+  },
 });
 
 export default PrimaryButton;
