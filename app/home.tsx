@@ -2,23 +2,21 @@ import Banner from "@/component/Banner";
 import CategoryList from "@/component/CategoryList";
 import Loading from "@/component/Loading";
 import MenuItem from "@/component/MenuItem";
+import ProfileHeader from "@/component/ProfileHeader";
 import { filterByQueryAndCategories } from "@/database/database";
 import useGetUserProfile from "@/hooks/useGetUserProfile";
 import { useMenuData } from "@/hooks/useMenuData";
 import { useUpdateEffect } from "@/hooks/useUpdateEffect";
-import { getInitials } from "@/utils/getInitials";
 import { router, Stack, useFocusEffect } from "expo-router";
 import debounce from "lodash.debounce";
 import { useCallback, useMemo, useState } from "react";
 import {
   FlatList,
-  Image,
   Pressable,
   StyleSheet,
   Text,
-  View,
+  View
 } from "react-native";
-import { Searchbar } from "react-native-paper";
 import { MenuItemType } from "../types/menuItemType";
 
 const categories = ["Starters", "Mains", "Desserts", "Drinks", "Specials"];
@@ -95,39 +93,6 @@ export default function Home() {
     );
   }
 
-  const profileHeader = () => {
-    if (profile && profilePhoto) {
-      return (
-        <Pressable onPress={() => router.navigate("/profile")}>
-          <Image
-            source={{ uri: profilePhoto }}
-            style={{ width: 40, height: 40, borderRadius: 20 }}
-          />
-        </Pressable>
-      );
-    } else if (profile) {
-      return (
-        <Pressable onPress={() => router.navigate("/profile")}>
-          <View style={styles.headerAvatarPlaceholder}>
-            <Text style={styles.headerAvatarPlaceholderText}>
-              {getInitials(firstName, lastName)}
-            </Text>
-          </View>
-        </Pressable>
-      );
-    } else {
-      return (
-        <Pressable onPress={() => router.navigate("/signIn")}>
-          <Image
-            source={require("../assets/images/add-user.png")}
-            style={{ width: 30, height: 30, tintColor: "#495E57" }}
-            accessibilityLabel="Signup/Login"
-          />
-        </Pressable>
-      );
-    }
-  };
-
   const renderItem = ({ item }: { item: MenuItemType }) => (
     <MenuItem
       name={item.name}
@@ -141,21 +106,24 @@ export default function Home() {
     <>
       <Stack.Screen
         options={{
-          headerRight: profileHeader,
+          headerRight: () => <ProfileHeader/>,
           headerBackVisible: false,
         }}
       />
       <View style={styles.container}>
         <Banner />
-        <View style={styles.searchbarBackground}>
-          <Searchbar
+        <View style={styles.bannerBackground}>
+          <Pressable style={styles.reservationButton} onPress={() => router.navigate('/reservation')}>
+            <Text style={styles.reservationText}>Reserve a table</Text>
+          </Pressable>
+          {/* <Searchbar
             style={styles.searchbar}
             value={searchbarText}
             placeholder="Search"
             placeholderTextColor="#495E57"
             inputStyle={{ alignSelf: "center" }}
             onChangeText={handleSearchChange}
-          />
+          /> */}
         </View>
         <View style={styles.bottomContainer}>
           <View>
@@ -191,23 +159,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  headerAvatarPlaceholder: {
-    width: 40,
-    height: 40,
-    borderRadius: 40,
-    backgroundColor: "#26abb4ff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerAvatarPlaceholderText: {
-    fontSize: 20,
-    fontFamily: "Karla-Regular",
-    color: "#EDEFEE",
-  },
-  searchbarBackground: {
+  bannerBackground: {
     backgroundColor: "#495E57",
     paddingBottom: 10,
     paddingHorizontal: 20,
+  },
+  reservationButton: {
+    padding: 5,
+    marginVertical: 10,
+    borderRadius: 15,
+    width: 150,
+    backgroundColor: "#F4CE14",
+    elevation: 100,
+    shadowColor: "#FFFFFF",
+    shadowOpacity: 50
+  },
+  reservationText: {
+    fontSize: 15,
+    fontFamily: "Karla-ExtraBold",
+    color: "#495E57",
+    textAlign: "center",
   },
   searchbar: {
     height: 40,
