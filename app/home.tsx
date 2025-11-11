@@ -117,7 +117,7 @@ export default function Home() {
       );
     } else {
       return (
-        <Pressable onPress={() => router.navigate("/onboarding")}>
+        <Pressable onPress={() => router.navigate("/signIn")}>
           <Image
             source={require("../assets/images/add-user.png")}
             style={{ width: 30, height: 30, tintColor: "#495E57" }}
