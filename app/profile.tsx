@@ -1,9 +1,13 @@
+import Loading from "@/component/Loading";
+import PrimaryButton from "@/component/PrimaryButton";
+import useGetUserProfile from "@/hooks/useGetUserProfile";
+import { signOut, updateProfile } from "@/lib/auth";
 import { getInitials } from "@/utils/getInitials";
 import { validateEmail, validateName } from "@/utils/isInputValid";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import { router, Stack } from "expo-router";
-import { useEffect, useState } from "react";
+import { Formik } from "formik";
+import { useState } from "react";
 import {
   Alert,
   Image,
@@ -16,46 +20,22 @@ import {
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { MaskedTextInput } from "react-native-mask-text";
 import CheckBox from "../component/Checkbox";
-import PrimaryButton from "../component/PrimaryButton";
 import SecondaryButton from "../component/SecondaryButton";
 
 const Profile = () => {
-  const [profilePhoto, setProfilePhoto] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [orderStatuses, setOrderStatuses] = useState(false);
-  const [passwordChanges, setPasswordChanges] = useState(false);
-  const [specialOffers, setSpecialOffers] = useState(false);
-  const [newsletter, setNewsletter] = useState(false);
+  const { profile, isLoading: getUserLoading, isError, refetch } = useGetUserProfile();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const fetchData = async () => {
-    try {
-      const userProfile = await AsyncStorage.getItem("userProfile");
-      if (userProfile) {
-        const profileData = JSON.parse(userProfile);
-        setFirstName(profileData.firstName || "");
-        setLastName(profileData.lastName || "");
-        setEmail(profileData.email || "");
-        setPhoneNumber(profileData.phoneNumber || "");
-        setProfilePhoto(profileData.profilePhoto || "");
-        
-        const notifications = profileData.emailNotifications || {};
-        setOrderStatuses(notifications.orderStatuses || false);
-        setPasswordChanges(notifications.passwordChanges || false);
-        setSpecialOffers(notifications.specialOffers || false);
-        setNewsletter(notifications.newsletter || false);
-      }
-    } catch (err) {
-      console.error("Unable to get user details from async storage", err);
-    }
-  };
-  useEffect(() => {
-    fetchData();
-  }, []);
+  if (getUserLoading && !profile) {
+    return <Loading />;
+  }
 
-  const pickImage = async () => {
+  if(isError) {
+    router.replace('/signIn')
+    return <Loading/>;
+  }
+
+  const pickImage = async (setFieldValue: any) => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       allowsEditing: true,
@@ -64,195 +44,231 @@ const Profile = () => {
     });
 
     if (!result.canceled) {
-      setProfilePhoto(result.assets[0].uri);
+      setFieldValue("profilePhoto", result.assets[0].uri);
     }
   };
 
-  const toggleNotifications = (key: string) => {
-    switch (key) {
-      case "order statuses":
-        setOrderStatuses(!orderStatuses);
-        break;
-      case "password changes":
-        setPasswordChanges(!passwordChanges);
-        break;
-      case "special offers":
-        setSpecialOffers(!specialOffers);
-        break;
-      case "newsletter":
-        setNewsletter(!newsletter);
-        break;
-      default:
-        break;
-    }
-  };
-
-  const saveUserDetails = async () => {
+  const saveUserDetails = async (values: any) => {
     try {
-      const userProfile = {
-        firstName,
-        lastName,
-        email,
-        phoneNumber,
-        profilePhoto,
+      if (!validateName(values.firstName) || !validateEmail(values.email)) {
+        Alert.alert("Error", "First name and email must be valid.");
+        return;
+      }
+
+      const { error } = await updateProfile({
+        firstName: values.firstName,
+        lastName: values.lastName,
+        phoneNumber: values.phoneNumber,
+        profilePhoto: values.profilePhoto,
         emailNotifications: {
+          orderStatuses: values.orderStatuses,
+          passwordChanges: values.passwordChanges,
+          specialOffers: values.specialOffers,
+          newsletter: values.newsletter,
+        },
+      });
+
+      if (error) {
+        Alert.alert("Error", "Failed to save profile. Please try again.");
+        console.error("Failed to save user details", error);
+      } else {
+        await refetch()
+        Alert.alert("Success", "Profile saved successfully!");
+      }
+    } catch (err) {
+      console.error("Failed to save user details", err);
+      Alert.alert("Error", "An unexpected error occurred.");
+    }
+  };
+  const onLogoutClick = async () => {
+    setIsLoading(true);
+    try {
+      const { error } = await signOut();
+      if (error) {
+        Alert.alert("Error", "Failed to log out. Please try again.");
+        console.error("Failed to log out", error);
+      } else {
+        router.replace("/home");
+      }
+    } catch (err) {
+      console.error("Failed to log out", err);
+      Alert.alert("Error", "An unexpected error occurred.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Formik
+      initialValues={{
+        profilePhoto: profile?.profilePhoto || "",
+        firstName: profile?.firstName || "",
+        lastName: profile?.lastName || "",
+        email: profile?.email || "",
+        phoneNumber: profile?.phoneNumber || "",
+        orderStatuses: profile?.emailNotifications?.orderStatuses || false,
+        passwordChanges: profile?.emailNotifications?.passwordChanges || false,
+        specialOffers: profile?.emailNotifications?.specialOffers || false,
+        newsletter: profile?.emailNotifications?.newsletter || false,
+      }}
+      onSubmit={saveUserDetails}
+      enableReinitialize
+    >
+      {({
+        resetForm,
+        setFieldValue,
+        handleSubmit,
+        values: {
+          profilePhoto,
+          firstName,
+          lastName,
+          email,
+          phoneNumber,
           orderStatuses,
           passwordChanges,
           specialOffers,
           newsletter,
         },
-      };
-      if (validateName(firstName) && validateEmail(email)) {
-      await AsyncStorage.setItem("userProfile", JSON.stringify(userProfile));
-      Alert.alert("Success", "Profile saved successfully!");
-      } else {
-        Alert.alert("Error", "First name and Email must be valid.")
-      }
+      }) => (
+        <>
+          <Stack.Screen
+            options={{
+              headerRight: () =>
+                profilePhoto ? (
+                  <Image
+                    source={{ uri: profilePhoto }}
+                    style={{ width: 40, height: 40, borderRadius: 20 }}
+                  />
+                ) : (
+                  <View style={styles.headerAvatarPlaceholder}>
+                    <Text style={styles.headerAvatarPlaceholderText}>
+                      {getInitials(firstName, lastName)}
+                    </Text>
+                  </View>
+                ),
+            }}
+          />
 
-    } catch (err) {
-      console.error("Failed to save user details", err);
-    }
-  };
-
-  const handleDiscardChange = async () => {
-    await fetchData();
-    Alert.alert("Success", "Changes has been discarded.");
-  };
-
-  const onLogoutClick = async () => {
-    try {
-      await AsyncStorage.removeItem("userProfile");
-      router.dismissTo("./onboarding");
-    } catch (err) {
-      console.error("Failed to clear async storage", err);
-    }
-  };
-
-  return (
-    <>
-      <Stack.Screen
-        options={{
-          headerRight: () =>
-            profilePhoto ? (
-              <Image
-                source={{ uri: profilePhoto }}
-                style={{ width: 40, height: 40, borderRadius: 20 }}
-              />
-            ) : (
-              <View style={styles.headerAvatarPlaceholder}>
-                <Text style={styles.headerAvatarPlaceholderText}>
-                  {getInitials(firstName, lastName)}
-                </Text>
-              </View>
-            ),
-        }}
-      />
-
-      <KeyboardAwareScrollView
-        style={styles.background}
-        contentContainerStyle={styles.scrollContent}
-        enableOnAndroid={true}
-        extraScrollHeight={150}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        <ImageBackground
-          source={require("../assets/images/lemon-background.png")}
-          resizeMode="center"
-          style={styles.container}
-        >
-          <View style={styles.overlay}>
-            <Text style={styles.title}>Personal information </Text>
-            <Text style={styles.textLabel}>Avatar</Text>
-            <View style={styles.profilePicContainer}>
-              {profilePhoto ? (
-                <Image
-                  style={styles.avatarImage}
-                  source={{ uri: profilePhoto }}
-                />
-              ) : (
-                <View style={styles.avatarPlaceholder}>
-                  <Text style={styles.avatarPlaceholderText}>
-                    {getInitials(firstName, lastName)}
-                  </Text>
+          <KeyboardAwareScrollView
+            style={styles.background}
+            contentContainerStyle={styles.scrollContent}
+            enableOnAndroid={true}
+            extraScrollHeight={50}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <ImageBackground
+              source={require("../assets/images/lemon-background.png")}
+              resizeMode="center"
+              style={styles.container}
+            >
+              <View style={styles.overlay}>
+                <Text style={styles.title}>Personal information </Text>
+                <Text style={styles.textLabel}>Avatar</Text>
+                <View style={styles.profilePicContainer}>
+                  {profilePhoto ? (
+                    <Image
+                      style={styles.avatarImage}
+                      source={{ uri: profilePhoto }}
+                    />
+                  ) : (
+                    <View style={styles.avatarPlaceholder}>
+                      <Text style={styles.avatarPlaceholderText}>
+                        {getInitials(firstName, lastName)}
+                      </Text>
+                    </View>
+                  )}
+                  <SecondaryButton name="Change" onClick={() => pickImage(setFieldValue)} />
+                  <SecondaryButton
+                    name="Remove"
+                    onClick={() => setFieldValue("profilePhoto", "")}
+                    backgroundColor="#EDEFEE"
+                    fontColor="#495E57"
+                    borderColor="#495E57"
+                  />
                 </View>
-              )}
-              <SecondaryButton name="Change" onClick={pickImage} />
-              <SecondaryButton
-                name="Remove"
-                onClick={() => setProfilePhoto("")}
-                backgroundColor="#EDEFEE"
-                fontColor="#495E57"
-                borderColor="#495E57"
-              />
-            </View>
-            <View style={styles.formContainer}>
-              <Text style={styles.textLabel}>First name:</Text>
-              <TextInput
-                style={styles.textInput}
-                value={firstName}
-                onChangeText={setFirstName}
-              />
-              <Text style={styles.textLabel}>Last name:</Text>
-              <TextInput
-                style={styles.textInput}
-                value={lastName}
-                onChangeText={setLastName}
-              />
-              <Text style={styles.textLabel}>Email:</Text>
-              <TextInput
-                style={styles.textInput}
-                value={email}
-                keyboardType="email-address"
-                onChangeText={setEmail}
-              />
-              <Text style={styles.textLabel}>Phone number:</Text>
-              <MaskedTextInput
-                style={styles.textInput}
-                mask="+(999) 999-9999"
-                value={phoneNumber}
-                keyboardType="numeric"
-                onChangeText={setPhoneNumber}
-              />
-            </View>
-            <Text style={styles.title}>Email notifications</Text>
-            <View style={styles.checkboxContainer}>
-              <CheckBox
-                label="Order statuses"
-                isChecked={orderStatuses}
-                setChecked={() => toggleNotifications("order statuses")}
-              />
-              <CheckBox
-                label="Password changes"
-                isChecked={passwordChanges}
-                setChecked={() => toggleNotifications("password changes")}
-              />
-              <CheckBox
-                label="Special offers"
-                isChecked={specialOffers}
-                setChecked={() => toggleNotifications("special offers")}
-              />
-              <CheckBox
-                label="Newsletter"
-                isChecked={newsletter}
-                setChecked={() => toggleNotifications("newsletter")}
-              />
-            </View>
-            <PrimaryButton label="Log out" onClick={onLogoutClick} />
-            <View style={styles.changeContainer}>
-              <SecondaryButton
-                name="Discard changes"
-                onClick={handleDiscardChange}
-                backgroundColor="#EDEFEE"
-                fontColor="#495E57"
-                borderColor="#495E57"
-              />
-              <SecondaryButton name="Save changes" onClick={saveUserDetails} />
-            </View>
-          </View>
-        </ImageBackground>
-      </KeyboardAwareScrollView>
-    </>
+                <View style={styles.formContainer}>
+                  <Text style={styles.textLabel}>First name:</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={firstName}
+                    onChangeText={(text) => setFieldValue("firstName", text)}
+                  />
+                  <Text style={styles.textLabel}>Last name:</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={lastName}
+                    onChangeText={(text) => setFieldValue("lastName", text)}
+                  />
+                  <Text style={styles.textLabel}>Email:</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={email}
+                    keyboardType="email-address"
+                    onChangeText={(text) => setFieldValue("email", text)}
+                  />
+                  <Text style={styles.textLabel}>Phone number:</Text>
+                  <MaskedTextInput
+                    style={styles.textInput}
+                    mask="+(999) 999-9999"
+                    value={phoneNumber}
+                    keyboardType="numeric"
+                    onChangeText={(text) => setFieldValue("phoneNumber", text)}
+                  />
+                </View>
+                <Text style={styles.title}>Email notifications</Text>
+                <View style={styles.checkboxContainer}>
+                  <CheckBox
+                    label="Order statuses"
+                    isChecked={orderStatuses}
+                    setChecked={() => setFieldValue("orderStatuses", !orderStatuses)}
+                  />
+                  <CheckBox
+                    label="Password changes"
+                    isChecked={passwordChanges}
+                    setChecked={() => setFieldValue("passwordChanges", !passwordChanges)}
+                  />
+                  <CheckBox
+                    label="Special offers"
+                    isChecked={specialOffers}
+                    setChecked={() => setFieldValue("specialOffers", !specialOffers)}
+                  />
+                  <CheckBox
+                    label="Newsletter"
+                    isChecked={newsletter}
+                    setChecked={() => setFieldValue("newsletter", !newsletter)}
+                  />
+                </View>
+                {isLoading ? (
+                  <View
+                    style={{
+                      width: 100,
+                      flexDirection: "row",
+                      alignSelf: "center",
+                      padding: 5,
+                    }}
+                  >
+                    <Loading />
+                  </View>
+                ) : (
+                  <PrimaryButton label="Log out" onClick={onLogoutClick} />
+                )}
+                <View style={styles.changeContainer}>
+                  <SecondaryButton
+                    name="Discard changes"
+                    onClick={resetForm}
+                    backgroundColor="#EDEFEE"
+                    fontColor="#495E57"
+                    borderColor="#495E57"
+                  />
+                  <SecondaryButton name="Save changes" onClick={handleSubmit} />
+                </View>
+              </View>
+            </ImageBackground>
+          </KeyboardAwareScrollView>
+        </>
+      )}
+    </Formik>
   );
 };
 

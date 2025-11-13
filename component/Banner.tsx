@@ -25,7 +25,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#495E57",
   },
   container: {
-    margin: 20,
+    marginTop: 5,
+    marginHorizontal: 20,
     justifyContent: 'space-evenly'
   },
   title: {
@@ -38,7 +39,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 44,
     includeFontPadding: false,
-    marginTop: -10,
+    marginTop: -12,
     fontFamily: "MarkaziText-Medium",
     color: "#EDEFEE",
   },
@@ -46,7 +47,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: -20
+    marginTop: -30
   },
   paragraph: {
     paddingTop: 10,

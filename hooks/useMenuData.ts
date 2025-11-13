@@ -1,37 +1,27 @@
 import { getMenuFromDb, initDatabase, saveMenuinDb } from "@/database/database";
+import { supabase } from "@/lib/supabase";
+import { MenuItemType } from "@/types/menuItemType";
 import { useEffect, useState } from "react";
-
-const API_URL =
-  "https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/capstone.json";
-
-const IMAGE_BASE_URL =
-  "https://github.com/Meta-Mobile-Developer-PC/Working-With-Data-API/blob/main/images/";
-
-type RawMenuItem = {
-  name: string;
-  price: string;
-  description: string;
-  image: string;
-  category: string;
-};
-
-export type MenuItemType = {
-  id: string;
-  name: string;
-  price: string;
-  description: string;
-  image: string;
-  category: string;
-};
 
 export const useMenuData = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [menu, setMenu] = useState<MenuItemType[]>([]);
 
-  const formatPrice = (price: string) => {
-    const priceNum = parseFloat(price);
-    return `$${priceNum.toFixed(2)}`;
+  const fetchMenuFromSupabase = async () => {
+    try {
+      const { data, error } = await supabase.from("menu_items").select("*");
+      if (error) {
+        console.error("Error fetching Menu", error);
+        throw error;
+      } else {
+        setMenu(data);
+        await saveMenuinDb(data);
+      }
+    } catch (error) {
+      console.error("fetchMenuFromSupabase: Failed to fetch Menu", error);
+      throw error;
+    }
   };
 
   useEffect(() => {
@@ -42,21 +32,7 @@ export const useMenuData = () => {
         if (database.length > 0) {
           setMenu(database);
         } else {
-          const response = await fetch(API_URL);
-          const json = await response.json();
-
-          const transformedData = json.menu.map(
-            (item: RawMenuItem, index: number) => ({
-              id: index + 1,
-              name: item.name,
-              price: formatPrice(item.price),
-              description: item.description,
-              category: item.category,
-              image: `${IMAGE_BASE_URL}${item.image}?raw=true`,
-            })
-          );
-          setMenu(transformedData);
-          await saveMenuinDb(transformedData);
+          await fetchMenuFromSupabase();
         }
       } catch (e) {
         console.error("Failed to fetch menu: ", e);
@@ -65,7 +41,6 @@ export const useMenuData = () => {
         setIsLoading(false);
       }
     };
-
     loadData();
   }, []);
   return { menu, setMenu, isLoading, isError };
