@@ -1,5 +1,5 @@
 
-export type SeatingPreference = "indoor" | "outdoor" | "no_preference" | null;
+export type SeatingPreference = "indoor" | "outdoor";
 
 export type Status = "pending" | "confirmed" | "cancelled" | "completed";
 

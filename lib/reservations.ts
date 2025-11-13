@@ -26,7 +26,7 @@ export const TransformDbReservationToReservation = (
     reservationDate: data.reservation_date || "",
     reservationTime: data.reservation_time || "",
     numberOfGuests: data.number_of_guests || 0,
-    seatingPreference: data.seating_preference || null,
+    seatingPreference: data.seating_preference,
     specialRequests: data.special_requests || null,
     status: data.status || "pending",
     createdAt: data.created_at || "",
@@ -83,11 +83,6 @@ export const getTimeSlotAvailability = async (
       indoorCount[time] = (indoorCount[time] || 0) + 1;
     } else if (seatingPreference === "outdoor") {
       outdoorCount[time] = (outdoorCount[time] || 0) + 1;
-    } else {
-      const currentIndoorBookings = indoorCount[time] || 0;
-      currentIndoorBookings < MAX_INDOOR_TABLES
-        ? (indoorCount[time] = currentIndoorBookings + 1)
-        : (outdoorCount[time] = (outdoorCount[time] || 0)+ 1);
     }
   });
 
