@@ -1,4 +1,4 @@
-import { getUserProfile } from "@/lib/auth";
+import { getUserProfile } from "@/lib/auth/auth";
 import { UserProfile } from "@/types/userProfile";
 import { useCallback, useEffect, useState } from "react";
 

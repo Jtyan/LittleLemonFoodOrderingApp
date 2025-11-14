@@ -1,7 +1,7 @@
 import Loading from "@/component/Loading";
 import PrimaryButton from "@/component/PrimaryButton";
 import useGetUserProfile from "@/hooks/useGetUserProfile";
-import { signOut, updateProfile } from "@/lib/auth";
+import { signOut, updateProfile } from "@/lib/auth/auth";
 import { getInitials } from "@/utils/getInitials";
 import { validateEmail, validateName } from "@/utils/isInputValid";
 import * as ImagePicker from "expo-image-picker";

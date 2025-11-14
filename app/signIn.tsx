@@ -1,5 +1,5 @@
 import Loading from "@/component/Loading";
-import { signIn } from "@/lib/auth";
+import { signIn } from "@/lib/auth/auth";
 import { validateEmail } from "@/utils/isInputValid";
 import { router, Stack } from "expo-router";
 import { useMemo, useState } from "react";

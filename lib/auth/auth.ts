@@ -1,5 +1,5 @@
-import { supabase } from "./supabase";
 import { DatabaseProfile, UserProfile } from "@/types/userProfile";
+import { supabase } from "../supabase";
 
 // Auth functions
 export async function signUp(email: string, password: string) {
