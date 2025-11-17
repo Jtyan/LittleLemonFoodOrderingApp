@@ -17,6 +17,9 @@ export const TransformDbReservationToReservation = (
     status: data.status || "pending",
     createdAt: data.created_at || "",
     updatedAt: data.updated_at || "",
+    guest_name: data.guest_name || null,
+    guest_email: data.guest_email || null,
+    guest_phone: data.guest_phone || null,
   };
 };
 
@@ -54,11 +57,11 @@ export const getTimeSlotAvailability = async (
   let indoorAvailability: TimeAvailability = {};
   let outdoorAvailability: TimeAvailability = {};
 
-  const {data, error} = await useGetReservationsByDate(date)
+  const { data, error } = await useGetReservationsByDate(date);
 
   if (error || !data) {
-    console.error("Error getting reservations, ", error)
-    return {indoorAvailability, outdoorAvailability}
+    console.error("Error getting reservations, ", error);
+    return { indoorAvailability, outdoorAvailability };
   }
 
   data.forEach((reservation) => {
