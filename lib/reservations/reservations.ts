@@ -1,20 +1,6 @@
 import { DatabaseReservation, Reservation } from "@/types/reservation";
-import { supabase } from "./supabase";
-
-export const TIME_SLOTS = [
-  "17:00",
-  "17:30",
-  "18:00",
-  "18:30",
-  "19:00",
-  "19:30",
-  "20:00",
-  "20:30",
-  "21:00",
-];
-
-const MAX_INDOOR_TABLES = 1;
-const MAX_OUTDOOR_TABLES = 1;
+import { useGetReservationsByDate } from "./api";
+import { MAX_INDOOR_TABLES, MAX_OUTDOOR_TABLES, TIME_SLOTS } from "./utils";
 
 // transform DatabaseReservation to Reservation
 export const TransformDbReservationToReservation = (
@@ -52,27 +38,27 @@ export const getVisibleTimeSlots = (selectedTime: string): string[] => {
   return TIME_SLOTS.slice(startIndex, endIndex);
 };
 
-type SeatingTimeSlots = {
-  indoor: Record<string, boolean>;
-  outdoor: Record<string, boolean>;
+type TimeBookingCount = Record<string, number>;
+type TimeAvailability = Record<string, boolean>;
+
+export type SeatingTimeSlots = {
+  indoorAvailability: TimeAvailability;
+  outdoorAvailability: TimeAvailability;
 };
 
 export const getTimeSlotAvailability = async (
   date: string
 ): Promise<SeatingTimeSlots> => {
-  let indoorCount: Record<string, number> = {};
-  let outdoorCount: Record<string, number> = {};
-  let indoor: Record<string, boolean> = {};
-  let outdoor: Record<string, boolean> = {};
+  let indoorCount: TimeBookingCount = {};
+  let outdoorCount: TimeBookingCount = {};
+  let indoorAvailability: TimeAvailability = {};
+  let outdoorAvailability: TimeAvailability = {};
 
-  const { data, error } = await supabase
-    .from("reservations")
-    .select("reservation_time, seating_preference")
-    .eq("reservation_date", date)
-    .in("status", ["pending", "confirmed"]);
-  if (error) {
-    console.error("Error getting timeslots availability", error);
-    return { indoor, outdoor };
+  const {data, error} = await useGetReservationsByDate(date)
+
+  if (error || !data) {
+    console.error("Error getting reservations, ", error)
+    return {indoorAvailability, outdoorAvailability}
   }
 
   data.forEach((reservation) => {
@@ -89,9 +75,9 @@ export const getTimeSlotAvailability = async (
   TIME_SLOTS.forEach((slot) => {
     const indoorBookings = indoorCount[slot] || 0;
     const outdoorBookings = outdoorCount[slot] || 0;
-    indoor[slot] = indoorBookings < MAX_INDOOR_TABLES;
-    outdoor[slot] = outdoorBookings < MAX_OUTDOOR_TABLES;
+    indoorAvailability[slot] = indoorBookings < MAX_INDOOR_TABLES;
+    outdoorAvailability[slot] = outdoorBookings < MAX_OUTDOOR_TABLES;
   });
 
-  return { indoor, outdoor };
+  return { indoorAvailability, outdoorAvailability };
 };
