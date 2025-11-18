@@ -5,7 +5,7 @@ import { signOut, updateProfile } from "@/lib/auth/auth";
 import { getInitials } from "@/utils/getInitials";
 import { validateEmail, validateName } from "@/utils/isInputValid";
 import * as ImagePicker from "expo-image-picker";
-import { router, Stack } from "expo-router";
+import { router } from "expo-router";
 import { Formik } from "formik";
 import { useState } from "react";
 import {
@@ -23,16 +23,21 @@ import CheckBox from "../component/Checkbox";
 import SecondaryButton from "../component/SecondaryButton";
 
 const Profile = () => {
-  const { profile, isLoading: getUserLoading, isError, refetch } = useGetUserProfile();
+  const {
+    profile,
+    isLoading: getUserLoading,
+    isError,
+    refetch,
+  } = useGetUserProfile();
   const [isLoading, setIsLoading] = useState(false);
 
   if (getUserLoading && !profile) {
     return <Loading />;
   }
 
-  if(isError) {
-    router.replace('/signIn')
-    return <Loading/>;
+  if (isError) {
+    router.replace("/signIn");
+    return <Loading />;
   }
 
   const pickImage = async (setFieldValue: any) => {
@@ -72,7 +77,7 @@ const Profile = () => {
         Alert.alert("Error", "Failed to save profile. Please try again.");
         console.error("Failed to save user details", error);
       } else {
-        await refetch()
+        await refetch();
         Alert.alert("Success", "Profile saved successfully!");
       }
     } catch (err) {
@@ -131,24 +136,6 @@ const Profile = () => {
         },
       }) => (
         <>
-          <Stack.Screen
-            options={{
-              headerRight: () =>
-                profilePhoto ? (
-                  <Image
-                    source={{ uri: profilePhoto }}
-                    style={{ width: 40, height: 40, borderRadius: 20 }}
-                  />
-                ) : (
-                  <View style={styles.headerAvatarPlaceholder}>
-                    <Text style={styles.headerAvatarPlaceholderText}>
-                      {getInitials(firstName, lastName)}
-                    </Text>
-                  </View>
-                ),
-            }}
-          />
-
           <KeyboardAwareScrollView
             style={styles.background}
             contentContainerStyle={styles.scrollContent}
@@ -178,7 +165,10 @@ const Profile = () => {
                       </Text>
                     </View>
                   )}
-                  <SecondaryButton name="Change" onClick={() => pickImage(setFieldValue)} />
+                  <SecondaryButton
+                    name="Change"
+                    onClick={() => pickImage(setFieldValue)}
+                  />
                   <SecondaryButton
                     name="Remove"
                     onClick={() => setFieldValue("profilePhoto", "")}
@@ -221,17 +211,23 @@ const Profile = () => {
                   <CheckBox
                     label="Order statuses"
                     isChecked={orderStatuses}
-                    setChecked={() => setFieldValue("orderStatuses", !orderStatuses)}
+                    setChecked={() =>
+                      setFieldValue("orderStatuses", !orderStatuses)
+                    }
                   />
                   <CheckBox
                     label="Password changes"
                     isChecked={passwordChanges}
-                    setChecked={() => setFieldValue("passwordChanges", !passwordChanges)}
+                    setChecked={() =>
+                      setFieldValue("passwordChanges", !passwordChanges)
+                    }
                   />
                   <CheckBox
                     label="Special offers"
                     isChecked={specialOffers}
-                    setChecked={() => setFieldValue("specialOffers", !specialOffers)}
+                    setChecked={() =>
+                      setFieldValue("specialOffers", !specialOffers)
+                    }
                   />
                   <CheckBox
                     label="Newsletter"
@@ -343,7 +339,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderWidth: 1,
     marginBottom: 20,
-    paddingHorizontal: 10
+    paddingHorizontal: 10,
   },
   checkboxContainer: {
     marginBottom: 10,
