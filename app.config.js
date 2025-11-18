@@ -1,0 +1,67 @@
+require('dotenv').config();
+
+  module.exports = {
+    expo: {
+      name: "Little Lemon Restaurant",
+      slug: "little-lemon-restaurant",
+      version: "1.0.0",
+      orientation: "portrait",
+      icon: "./assets/images/app-logo.png",
+      scheme: "littlelemonfoodorderapp",
+      userInterfaceStyle: "automatic",
+      newArchEnabled: true,
+      ios: {
+        supportsTablet: true,
+        bundleIdentifier: "com.jtyan.littlelemonrestaurant",
+        config: {
+          googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY
+        }
+      },
+      android: {
+        adaptiveIcon: {
+          backgroundColor: "#E6F4FE",
+          foregroundImage: "./assets/images/android-icon-foreground.png",
+          backgroundImage: "./assets/images/android-icon-background.png",
+          monochromeImage: "./assets/images/android-icon-monochrome.png"
+        },
+        edgeToEdgeEnabled: false,
+        predictiveBackGestureEnabled: false,
+        package: "com.jtyan.littlelemonrestaurant",
+        config: {
+          googleMaps: {
+            apiKey: process.env.GOOGLE_MAPS_API_KEY
+          }
+        }
+      },
+      web: {
+        output: "static",
+        favicon: "./assets/images/favicon.png"
+      },
+      plugins: [
+        "expo-router",
+        [
+          "expo-splash-screen",
+          {
+            image: "./assets/images/splash-icon.png",
+            imageWidth: 250,
+            resizeMode: "contain",
+            backgroundColor: "#FFFFFF",
+            dark: {
+              image: "./assets/images/splash-icon.png",
+              backgroundColor: "#000000"
+            }
+          }
+        ]
+      ],
+      experiments: {
+        typedRoutes: true,
+        reactCompiler: true
+      },
+      extra: {
+        router: {},
+        eas: {
+          projectId: "2deee1e8-bf3a-4aa6-b3ff-9f2b7f9ff6e5"
+        }
+      }
+    }
+  };
