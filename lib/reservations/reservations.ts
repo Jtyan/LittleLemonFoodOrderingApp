@@ -75,11 +75,29 @@ export const getTimeSlotAvailability = async (
     }
   });
 
+  const now = new Date();
+  const today = now.toISOString().split("T")[0];
+  const isToday = date === today;
+
   TIME_SLOTS.forEach((slot) => {
     const indoorBookings = indoorCount[slot] || 0;
     const outdoorBookings = outdoorCount[slot] || 0;
-    indoorAvailability[slot] = indoorBookings < MAX_INDOOR_TABLES;
-    outdoorAvailability[slot] = outdoorBookings < MAX_OUTDOOR_TABLES;
+
+    let isSlotAvailable = true;
+    if (isToday) {
+      const [hours, minutes] = slot.split(":").map(Number);
+      const slotTime = new Date();
+      slotTime.setHours(hours, minutes, 0, 0);
+
+      if (slotTime <= now) {
+        isSlotAvailable = false;
+      }
+    }
+
+    indoorAvailability[slot] =
+      indoorBookings < MAX_INDOOR_TABLES && isSlotAvailable;
+    outdoorAvailability[slot] =
+      outdoorBookings < MAX_OUTDOOR_TABLES && isSlotAvailable;
   });
 
   return { indoorAvailability, outdoorAvailability };
