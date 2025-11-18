@@ -343,6 +343,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderWidth: 1,
     marginBottom: 20,
+    paddingHorizontal: 10
   },
   checkboxContainer: {
     marginBottom: 10,

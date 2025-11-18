@@ -26,6 +26,7 @@ const styles = StyleSheet.create({
   },
   container: {
     marginTop: 5,
+    marginBottom: 10,
     marginHorizontal: 20,
     justifyContent: 'space-evenly'
   },
