@@ -1,6 +1,6 @@
 import { DatabaseReservation, Reservation } from "@/types/reservation";
 import {
-  useGetReservationsByDate
+  getReservationsByDate
 } from "./api";
 import { MAX_INDOOR_TABLES, MAX_OUTDOOR_TABLES, TIME_SLOTS } from "./utils";
 
@@ -59,7 +59,7 @@ export const getTimeSlotAvailability = async (
   let indoorAvailability: TimeAvailability = {};
   let outdoorAvailability: TimeAvailability = {};
 
-  const { data, error } = await useGetReservationsByDate(date);
+  const { data, error } = await getReservationsByDate(date);
 
   if (error || !data) {
     console.error("Error getting reservations, ", error);

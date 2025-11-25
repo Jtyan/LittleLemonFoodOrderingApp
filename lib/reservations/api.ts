@@ -1,7 +1,7 @@
-import { SeatingPreference } from "@/types/reservation";
+import { DatabaseReservation, SeatingPreference } from "@/types/reservation";
 import { supabase } from "../supabase";
 
-export const useGetReservationsByDate = async (date: string) => {
+export const getReservationsByDate = async (date: string) => {
   const { data, error } = await supabase
     .from("reservations")
     .select("reservation_time, seating_preference")
@@ -10,7 +10,36 @@ export const useGetReservationsByDate = async (date: string) => {
 
   const transformedData = data?.map((reservation) => ({
     ...reservation,
-    reservation_time: reservation.reservation_time.substring(0, 5)
+    reservation_time: reservation.reservation_time.substring(0, 5),
+  }));
+
+  return { data: transformedData, error };
+};
+
+export const getReservationsByUserId = async (userId: string) => {
+  const { data, error } = await supabase
+    .from("reservations")
+    .select("*")
+    .eq("user_id", userId)
+    .in("status", ["pending", "confirmed"]);
+
+  const transformedData = data?.map((reservation) => ({
+    ...reservation,
+    reservation_time: reservation.reservation_time.substring(0, 5),
+  }));
+
+  return { data: transformedData, error };
+};
+
+export const getReservationsById = async (id: string) => {
+  const { data, error } = await supabase
+    .from("reservations")
+    .select("*")
+    .eq("id", id);
+
+  const transformedData = data?.map((reservation) => ({
+    ...reservation,
+    reservation_time: reservation.reservation_time.substring(0, 5),
   }));
 
   return { data: transformedData, error };
@@ -52,3 +81,34 @@ export const createReservation = async (
 
   return { data, error };
 };
+
+export const linkReservationToUser = async (
+  reservationId: string,
+  userId: string
+) => {
+  const { data, error } = await supabase
+    .from("reservations")
+    .update({ user_id: userId })
+    .eq("id", reservationId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Error linking reservation to user: ", error);
+  }
+
+  return { data, error };
+};
+ export const updateReservation = async (
+    reservationId: string,
+    updates: Partial<Omit<DatabaseReservation, "id" | "created_at" | "updated_at">>
+  ) => {
+    const { data, error } = await supabase
+      .from("reservations")
+      .update(updates)
+      .eq("id", reservationId)
+      .select()
+      .single();
+
+    return { data, error };
+  };
