@@ -21,9 +21,9 @@ export type DatabaseReservation = {
 export type Reservation = {
   id: number;
   userId: string | null;
-  guest_name: string | null;
-  guest_email: string | null;
-  guest_phone: string | null;
+  guestName: string | null;
+  guestEmail: string | null;
+  guestPhone: string | null;
   reservationDate: string;
   reservationTime: string;
   numberOfGuests: number;
