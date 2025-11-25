@@ -1,4 +1,5 @@
 import Loading from "@/component/Loading";
+import PageLayout from "@/component/PageLayout";
 import PrimaryButton from "@/component/PrimaryButton";
 import useGetUserProfile from "@/hooks/useGetUserProfile";
 import { createReservation } from "@/lib/reservations/api";
@@ -12,11 +13,10 @@ import { Formik } from "formik";
 import { useState } from "react";
 import {
   Alert,
-  ImageBackground,
   StyleSheet,
   Text,
   TextInput,
-  View,
+  View
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { MaskedTextInput } from "react-native-mask-text";
@@ -97,6 +97,8 @@ const ReservationContact = () => {
         specialRequest,
         guestInfo
       );
+      
+      const {id} = data
 
       setIsLoading(false);
 
@@ -107,6 +109,7 @@ const ReservationContact = () => {
       router.replace({
         pathname: "/reservation/confirmation",
         params: {
+          id,
           selectedDate,
           selectedTimeSlot,
           numberOfGuests,
@@ -149,109 +152,103 @@ const ReservationContact = () => {
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            <ImageBackground
-              source={require("@/assets/images/lemon-background.png")}
-              resizeMode="center"
-              style={styles.background}
-            >
-              <View style={styles.overlay}>
-                <Text style={styles.title}>Reservation</Text>
-                <View
-                  style={[
-                    styles.reservationInfoContainer,
-                    { justifyContent: "space-between", paddingEnd: 20 },
-                  ]}
-                >
-                  <View style={styles.reservationInfoContainer}>
-                    <MaterialCommunityIcons
-                      style={styles.icon}
-                      name="silverware-fork-knife"
-                      size={35}
-                    />
-                    <View>
-                      <Text style={styles.text}>Party of {numberOfGuests}</Text>
-                      <Text style={styles.text}>
-                        {capitaliseWord(selectedSeatingPreference.toString())}{" "}
-                        Seating
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={{ flexDirection: "row" }}>
-                    <Entypo style={styles.icon} name="calendar" size={35} />
-                    <View>
-                      <Text style={styles.text}>
-                        {new Date(date).toLocaleDateString("en-US", {
-                          day: "numeric",
-                          month: "long",
-                        })}
-                      </Text>
-                      <Text style={styles.text}>{selectedTimeSlot}</Text>
-                    </View>
-                  </View>
-                </View>
-                <View>
-                  <Text style={styles.subtitle}>
-                    Please fill in your contact info:{" "}
-                  </Text>
-                  <View style={styles.formContainer}>
-                    <Text style={styles.textLabel}>*Name:</Text>
-                    <TextInput
-                      style={styles.textInput}
-                      value={name}
-                      onChangeText={(text) => setFieldValue("name", text)}
-                    />
-                  </View>
-                  <View style={styles.formContainer}>
-                    <Text style={styles.textLabel}>*Phone Number:</Text>
-                    <MaskedTextInput
-                      style={styles.textInput}
-                      mask="+(999) 999-9999"
-                      value={phoneNumber}
-                      keyboardType="numeric"
-                      onChangeText={(text, rawText) =>
-                        setFieldValue("phoneNumber", rawText)
-                      }
-                    />
-                  </View>
-                  <View style={styles.formContainer}>
-                    <Text style={styles.textLabel}>*Email:</Text>
-                    <TextInput
-                      style={styles.textInput}
-                      value={email}
-                      onChangeText={(text) => setFieldValue("email", text)}
-                    />
-                  </View>
-                  <View style={styles.formContainer}>
-                    <Text style={styles.textLabel}>
-                      Special Request (optional):
+            <PageLayout>
+              <Text style={styles.title}>Reservation</Text>
+              <View
+                style={[
+                  styles.reservationInfoContainer,
+                  { justifyContent: "space-between", paddingEnd: 20 },
+                ]}
+              >
+                <View style={styles.reservationInfoContainer}>
+                  <MaterialCommunityIcons
+                    style={styles.icon}
+                    name="silverware-fork-knife"
+                    size={35}
+                  />
+                  <View>
+                    <Text style={styles.text}>Party of {numberOfGuests}</Text>
+                    <Text style={styles.text}>
+                      {capitaliseWord(selectedSeatingPreference.toString())}{" "}
+                      Seating
                     </Text>
-                    <TextInput
-                      style={[styles.textInput, { height: 150 }]}
-                      value={specialRequest}
-                      multiline
-                      scrollEnabled
-                      textAlignVertical="top"
-                      onChangeText={(text) =>
-                        setFieldValue("specialRequest", text)
-                      }
-                    />
                   </View>
                 </View>
-                <View style={styles.buttonContainer}>
-                  {isLoading ? (
-                    <View style={{ justifyContent: "center" }}>
-                      <Loading />
-                    </View>
-                  ) : (
-                    <PrimaryButton
-                      label="Confirm Reservation"
-                      onClick={handleSubmit}
-                      isDisabled={isLoading}
-                    />
-                  )}
+                <View style={{ flexDirection: "row" }}>
+                  <Entypo style={styles.icon} name="calendar" size={35} />
+                  <View>
+                    <Text style={styles.text}>
+                      {new Date(date).toLocaleDateString("en-US", {
+                        day: "numeric",
+                        month: "long",
+                      })}
+                    </Text>
+                    <Text style={styles.text}>{selectedTimeSlot}</Text>
+                  </View>
                 </View>
               </View>
-            </ImageBackground>
+              <View>
+                <Text style={styles.subtitle}>
+                  Please fill in your contact info:{" "}
+                </Text>
+                <View style={styles.formContainer}>
+                  <Text style={styles.textLabel}>*Name:</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={name}
+                    onChangeText={(text) => setFieldValue("name", text)}
+                  />
+                </View>
+                <View style={styles.formContainer}>
+                  <Text style={styles.textLabel}>*Phone Number:</Text>
+                  <MaskedTextInput
+                    style={styles.textInput}
+                    mask="+(999) 999-9999"
+                    value={phoneNumber}
+                    keyboardType="numeric"
+                    onChangeText={(text, rawText) =>
+                      setFieldValue("phoneNumber", rawText, false)
+                    }
+                  />
+                </View>
+                <View style={styles.formContainer}>
+                  <Text style={styles.textLabel}>*Email:</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={email}
+                    onChangeText={(text) => setFieldValue("email", text)}
+                  />
+                </View>
+                <View style={styles.formContainer}>
+                  <Text style={styles.textLabel}>
+                    Special Request (optional):
+                  </Text>
+                  <TextInput
+                    style={[styles.textInput, { height: 150 }]}
+                    value={specialRequest}
+                    multiline
+                    scrollEnabled
+                    textAlignVertical="top"
+                    onChangeText={(text) =>
+                      setFieldValue("specialRequest", text)
+                    }
+                  />
+                </View>
+              </View>
+              <View style={styles.buttonContainer}>
+                {isLoading ? (
+                  <View style={{ justifyContent: "center" }}>
+                    <Loading />
+                  </View>
+                ) : (
+                  <PrimaryButton
+                    label="Confirm Reservation"
+                    onClick={handleSubmit}
+                    isDisabled={isLoading}
+                  />
+                )}
+              </View>
+            </PageLayout>
           </KeyboardAwareScrollView>
         </>
       )}
@@ -260,19 +257,8 @@ const ReservationContact = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-  },
   background: {
     flex: 1,
-  },
-  overlay: {
-    flex: 1,
-    backgroundColor: "#edefeef8",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
   },
   scrollContent: {
     flexGrow: 1,

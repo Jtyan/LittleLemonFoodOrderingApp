@@ -1,4 +1,5 @@
 import Loading from "@/component/Loading";
+import PageLayout from "@/component/PageLayout";
 import PrimaryButton from "@/component/PrimaryButton";
 import useGetUserProfile from "@/hooks/useGetUserProfile";
 import { signOut, updateProfile } from "@/lib/auth/auth";
@@ -11,11 +12,10 @@ import { useState } from "react";
 import {
   Alert,
   Image,
-  ImageBackground,
   StyleSheet,
   Text,
   TextInput,
-  View,
+  View
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { MaskedTextInput } from "react-native-mask-text";
@@ -144,123 +144,117 @@ const Profile = () => {
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            <ImageBackground
-              source={require("../assets/images/lemon-background.png")}
-              resizeMode="center"
-              style={styles.container}
-            >
-              <View style={styles.overlay}>
-                <Text style={styles.title}>Personal information </Text>
-                <Text style={styles.textLabel}>Avatar</Text>
-                <View style={styles.profilePicContainer}>
-                  {profilePhoto ? (
-                    <Image
-                      style={styles.avatarImage}
-                      source={{ uri: profilePhoto }}
-                    />
-                  ) : (
-                    <View style={styles.avatarPlaceholder}>
-                      <Text style={styles.avatarPlaceholderText}>
-                        {getInitials(firstName, lastName)}
-                      </Text>
-                    </View>
-                  )}
-                  <SecondaryButton
-                    name="Change"
-                    onClick={() => pickImage(setFieldValue)}
+            <PageLayout>
+              <Text style={styles.title}>Personal information </Text>
+              <Text style={styles.textLabel}>Avatar</Text>
+              <View style={styles.profilePicContainer}>
+                {profilePhoto ? (
+                  <Image
+                    style={styles.avatarImage}
+                    source={{ uri: profilePhoto }}
                   />
-                  <SecondaryButton
-                    name="Remove"
-                    onClick={() => setFieldValue("profilePhoto", "")}
-                    backgroundColor="#EDEFEE"
-                    fontColor="#495E57"
-                    borderColor="#495E57"
-                  />
-                </View>
-                <View style={styles.formContainer}>
-                  <Text style={styles.textLabel}>First name:</Text>
-                  <TextInput
-                    style={styles.textInput}
-                    value={firstName}
-                    onChangeText={(text) => setFieldValue("firstName", text)}
-                  />
-                  <Text style={styles.textLabel}>Last name:</Text>
-                  <TextInput
-                    style={styles.textInput}
-                    value={lastName}
-                    onChangeText={(text) => setFieldValue("lastName", text)}
-                  />
-                  <Text style={styles.textLabel}>Email:</Text>
-                  <TextInput
-                    style={styles.textInput}
-                    value={email}
-                    keyboardType="email-address"
-                    onChangeText={(text) => setFieldValue("email", text)}
-                  />
-                  <Text style={styles.textLabel}>Phone number:</Text>
-                  <MaskedTextInput
-                    style={styles.textInput}
-                    mask="+(999) 999-9999"
-                    value={phoneNumber}
-                    keyboardType="numeric"
-                    onChangeText={(text) => setFieldValue("phoneNumber", text)}
-                  />
-                </View>
-                <Text style={styles.title}>Email notifications</Text>
-                <View style={styles.checkboxContainer}>
-                  <CheckBox
-                    label="Order statuses"
-                    isChecked={orderStatuses}
-                    setChecked={() =>
-                      setFieldValue("orderStatuses", !orderStatuses)
-                    }
-                  />
-                  <CheckBox
-                    label="Password changes"
-                    isChecked={passwordChanges}
-                    setChecked={() =>
-                      setFieldValue("passwordChanges", !passwordChanges)
-                    }
-                  />
-                  <CheckBox
-                    label="Special offers"
-                    isChecked={specialOffers}
-                    setChecked={() =>
-                      setFieldValue("specialOffers", !specialOffers)
-                    }
-                  />
-                  <CheckBox
-                    label="Newsletter"
-                    isChecked={newsletter}
-                    setChecked={() => setFieldValue("newsletter", !newsletter)}
-                  />
-                </View>
-                {isLoading ? (
-                  <View
-                    style={{
-                      width: 100,
-                      flexDirection: "row",
-                      alignSelf: "center",
-                      padding: 5,
-                    }}
-                  >
-                    <Loading />
-                  </View>
                 ) : (
-                  <PrimaryButton label="Log out" onClick={onLogoutClick} />
+                  <View style={styles.avatarPlaceholder}>
+                    <Text style={styles.avatarPlaceholderText}>
+                      {getInitials(firstName, lastName)}
+                    </Text>
+                  </View>
                 )}
-                <View style={styles.changeContainer}>
-                  <SecondaryButton
-                    name="Discard changes"
-                    onClick={resetForm}
-                    backgroundColor="#EDEFEE"
-                    fontColor="#495E57"
-                    borderColor="#495E57"
-                  />
-                  <SecondaryButton name="Save changes" onClick={handleSubmit} />
-                </View>
+                <SecondaryButton
+                  name="Change"
+                  onClick={() => pickImage(setFieldValue)}
+                />
+                <SecondaryButton
+                  name="Remove"
+                  onClick={() => setFieldValue("profilePhoto", "")}
+                  backgroundColor="#EDEFEE"
+                  fontColor="#495E57"
+                  borderColor="#495E57"
+                />
               </View>
-            </ImageBackground>
+              <View style={styles.formContainer}>
+                <Text style={styles.textLabel}>First name:</Text>
+                <TextInput
+                  style={styles.textInput}
+                  value={firstName}
+                  onChangeText={(text) => setFieldValue("firstName", text)}
+                />
+                <Text style={styles.textLabel}>Last name:</Text>
+                <TextInput
+                  style={styles.textInput}
+                  value={lastName}
+                  onChangeText={(text) => setFieldValue("lastName", text)}
+                />
+                <Text style={styles.textLabel}>Email:</Text>
+                <TextInput
+                  style={styles.textInput}
+                  value={email}
+                  keyboardType="email-address"
+                  onChangeText={(text) => setFieldValue("email", text)}
+                />
+                <Text style={styles.textLabel}>Phone number:</Text>
+                <MaskedTextInput
+                  style={styles.textInput}
+                  mask="+(999) 999-9999"
+                  value={phoneNumber}
+                  keyboardType="numeric"
+                  onChangeText={(text) => setFieldValue("phoneNumber", text)}
+                />
+              </View>
+              <Text style={styles.title}>Email notifications</Text>
+              <View style={styles.checkboxContainer}>
+                <CheckBox
+                  label="Order statuses"
+                  isChecked={orderStatuses}
+                  setChecked={() =>
+                    setFieldValue("orderStatuses", !orderStatuses)
+                  }
+                />
+                <CheckBox
+                  label="Password changes"
+                  isChecked={passwordChanges}
+                  setChecked={() =>
+                    setFieldValue("passwordChanges", !passwordChanges)
+                  }
+                />
+                <CheckBox
+                  label="Special offers"
+                  isChecked={specialOffers}
+                  setChecked={() =>
+                    setFieldValue("specialOffers", !specialOffers)
+                  }
+                />
+                <CheckBox
+                  label="Newsletter"
+                  isChecked={newsletter}
+                  setChecked={() => setFieldValue("newsletter", !newsletter)}
+                />
+              </View>
+              {isLoading ? (
+                <View
+                  style={{
+                    width: 100,
+                    flexDirection: "row",
+                    alignSelf: "center",
+                    padding: 5,
+                  }}
+                >
+                  <Loading />
+                </View>
+              ) : (
+                <PrimaryButton label="Log out" onClick={onLogoutClick} />
+              )}
+              <View style={styles.changeContainer}>
+                <SecondaryButton
+                  name="Discard changes"
+                  onClick={resetForm}
+                  backgroundColor="#EDEFEE"
+                  fontColor="#495E57"
+                  borderColor="#495E57"
+                />
+                <SecondaryButton name="Save changes" onClick={handleSubmit} />
+              </View>
+            </PageLayout>
           </KeyboardAwareScrollView>
         </>
       )}
@@ -269,21 +263,12 @@ const Profile = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   background: {
     flex: 1,
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: "flex-start",
-  },
-  overlay: {
-    flex: 1,
-    backgroundColor: "#edefeef8",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
   },
   title: {
     fontFamily: "Karla-Regular",
