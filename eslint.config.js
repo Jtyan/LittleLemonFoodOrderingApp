@@ -1,5 +1,5 @@
 // https://docs.expo.dev/guides/using-eslint/
-import reactHooks from "eslint-plugin-react-hooks";
+// const reactHooks = require( "eslint-plugin-react-hooks");
 const { defineConfig } = require("eslint/config");
 const expoConfig = require("eslint-config-expo/flat");
 
@@ -8,5 +8,5 @@ module.exports = defineConfig([
   {
     ignores: ["dist/*"],
   },
-  reactHooks.configs.flat.recommended,
+  // reactHooks.configs.flat.recommended,
 ]);
