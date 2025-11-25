@@ -1,6 +1,7 @@
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
+import { PaperProvider } from "react-native-paper";
 import HeaderLogo from "../component/HeaderLogo";
 
 SplashScreen.preventAutoHideAsync();
@@ -31,11 +32,13 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack
-      screenOptions={{
-        headerTitle: () => <HeaderLogo />,
-        headerTitleAlign: "center",
-      }}
-    />
+    <PaperProvider>
+      <Stack
+        screenOptions={{
+          headerTitle: () => <HeaderLogo />,
+          headerTitleAlign: "center",
+        }}
+      />
+    </PaperProvider>
   );
 }
