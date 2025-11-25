@@ -1,7 +1,8 @@
 import Loading from "@/component/Loading";
 import { createProfile, signIn, signUp } from "@/lib/auth/auth";
+import { linkReservationToUser } from "@/lib/reservations/api";
 import { validateEmail } from "@/utils/isInputValid";
-import { router, Stack } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import {
   Keyboard,
@@ -21,6 +22,7 @@ const SignUp = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const { reservationId } = useLocalSearchParams();
 
   const isEmailValid = useMemo(() => {
     return validateEmail(email);
@@ -28,7 +30,7 @@ const SignUp = () => {
 
   const isPasswordMatching = useMemo(() => {
     if (password.length < 1) {
-      return false
+      return false;
     }
     return password === confirmPassword;
   }, [password, confirmPassword]);
@@ -61,6 +63,15 @@ const SignUp = () => {
 
         // Sign in the user
         await signIn(email, password);
+
+        // If there is reservationId, update the reservation details with data.user.id
+        if (reservationId) {
+          const id = Array.isArray(reservationId)
+            ? reservationId[0]
+            : reservationId;
+          console.log("Linking reservation:", id, "to user:", data.user.id);
+          await linkReservationToUser(Number(id), data.user.id);
+        }
         router.replace("/home");
       }
     } catch (error) {
@@ -165,11 +176,13 @@ const SignUp = () => {
               <View style={{ width: 100 }}>
                 <Loading />
               </View>
-            ) :(<PrimaryButton
-              label="Create Account"
-              onClick={submitUserSignUpDetails}
-              isDisabled={isButtonDisabled}
-            />)}
+            ) : (
+              <PrimaryButton
+                label="Create Account"
+                onClick={submitUserSignUpDetails}
+                isDisabled={isButtonDisabled}
+              />
+            )}
           </View>
         </View>
       </KeyboardAwareScrollView>

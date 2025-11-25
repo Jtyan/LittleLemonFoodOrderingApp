@@ -83,7 +83,7 @@ export const createReservation = async (
 };
 
 export const linkReservationToUser = async (
-  reservationId: string,
+  reservationId: number,
   userId: string
 ) => {
   const { data, error } = await supabase
