@@ -1,5 +1,7 @@
 import { DatabaseReservation, Reservation } from "@/types/reservation";
-import { useGetReservationsByDate } from "./api";
+import {
+  useGetReservationsByDate
+} from "./api";
 import { MAX_INDOOR_TABLES, MAX_OUTDOOR_TABLES, TIME_SLOTS } from "./utils";
 
 // transform DatabaseReservation to Reservation
@@ -9,17 +11,17 @@ export const TransformDbReservationToReservation = (
   return {
     id: data.id,
     userId: data.user_id,
-    reservationDate: data.reservation_date || "",
-    reservationTime: data.reservation_time || "",
-    numberOfGuests: data.number_of_guests || 0,
+    reservationDate: data.reservation_date,
+    reservationTime: data.reservation_time,
+    numberOfGuests: data.number_of_guests,
     seatingPreference: data.seating_preference,
-    specialRequests: data.special_requests || null,
-    status: data.status || "pending",
-    createdAt: data.created_at || "",
-    updatedAt: data.updated_at || "",
-    guest_name: data.guest_name || null,
-    guest_email: data.guest_email || null,
-    guest_phone: data.guest_phone || null,
+    specialRequests: data.special_requests,
+    status: data.status,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+    guestName: data.guest_name,
+    guestEmail: data.guest_email,
+    guestPhone: data.guest_phone,
   };
 };
 
